@@ -1,0 +1,279 @@
+Blood Donation Management in Pakistan: A Blockchain-Based Solution
+
+
+
+Abstract 
+Blood donation systems in developing countries like Pakistan face a myriad of challenges including poorly digitized primitive systems that rely on centralised databases. These databases are prone to fabrication and make illegal blood trading a prevalent and growing issue. For a country where millions depend on regular blood transfusions to live , the absence of an organised, secure and reliable blood donation system poses a serious risk to public health. This research proposes a novel blockchain based blood donation system to introduce transparency, reliability and decentralisation to the blood supply chain. Using hyperledger fabric as a permissioned blockchain framework and tracking the entire process from blood collection to storage through an immutable ledger we shall be able to mitigate fraud, blood wastage and illegal trading and also foster convenience and trust amongst patients, as well as potential donors.
+
+Index Terms
+
+Blockchain , Hyperledger Fabric , Blood donation , Development, Pakistan
+
+
+
+Blood is the essential fluid that sustains life in the human body, carrying vital nutrients, oxygen, and immune cells throughout our bodies. Beyond its physiological importance, blood plays a critical role in healthcare systems worldwide, serving as an irreplaceable resource for surgeries, trauma care, treatment of chronic conditions, and numerous medical procedures. Unlike pharmaceutical products that can be manufactured, blood cannot be artificially produced and must come from human donors, making it a precious and limited resource in healthcare.[1](Cherian, 2022) Due to this limitation, efficient management and distribution are of utmost importance, particularly in countries with constrained resources (Kim et al., 2020). 
+
+In developing countries like Pakistan, blood donation and transfusion services often face complex challenges that compromise their safety, efficiency, and accessibility (Zafar et al., 2022). There is a significant disparity between the number of donors and patients, Only 10% of donors are voluntary and the cumulative supply is 50% less than the requirement (Mumtaz et al., 2011). The risk of contracting TTIs (Transfusion Transmitted Infections) due to prevalent substandard hygeine practices such as reused needles and no sterlization has led to extremely low donor turnout.(Javed et al., 2022) The process of collecting, testing, processing, storing, and distributing blood is often fragmented, with limited coordination between blood banks, hospitals, and other healthcare providers. Lack of coordination, inadequate infrastructure, insufficient funding, and reliance on manual processes contribute to inefficiencies, errors, and delays in the blood supply chain, thereby undermining the quality and availability of blood products in Pakistan. (Zafar et al., 2022)
+
+Illegal blood trade is also a raging issue, Many illegal outlets neglect proper screening and storage, with professional donors often being drug addicts or impoverished individuals selling blood for money(Butt, 2015).
+
+This unsafe and exploitative system worsens the situation for transfusion-dependent patients, a number which is exponentially growing. There are over 10 million β-thalassemia carriers, with around 5,000 children diagnosed with β-thalassemia major each year. (Jamal et al., 2023) Additionally, many more individuals suffer from various blood disorders that necessitate regular transfusions to maintain their quality of life. 
+
+ 
+
+
+Pakistan's blood transfusion system remains fragmented and inadequately digitized, with inconsistent standards across predominantly hospital-based blood banks and unregulated private/NGO providers, compromising donor screening and blood safety protocols(Zaheer & Waheed, 2014) Databses if used at all are completetly centralised which makes manipulation and fabrication of records easy and add to the issue of illegal blood trade putting lives at risk, it is imperative that a solution exisits which creates ease safety and conveneice for the people(Хан, 2009)
+
+This research aims to proposes a decentralized blockchain-based blood donation management system to address these systemic flaws. After performing a thorough comparative analysis between ethereum and hyperledger, The system leverages Hyperledger Fabric (Androulaki et al., 2018)  as a permissioned blockchain framework to establish secure, immutable, and transparent records for all blood donation processes. The design incorporates smart contracts to automate essential operations, such as donor registration, blood inventory updates, and transaction validation, thereby minimizing human error and improving operational efficiency. Additionally, the system integrates real-time tracking features to provide instant access to blood bank locations and donor availability, enabling timely responses for both donors and recipients.
+
+
+
+Blockchain Background:
+
+
+
+Blockchain is a decentralized digital ledger that securely and transparently records transactions. It consists of a chain of blocks, with each block containing validated transactions. These blocks are linked chronologically and protected by cryptographic techniques, making the data tamper-resistant and immutable once added to the chain. In a blockchain network, multiple participants, known as nodes, maintain a copy of the ledger and participate in verifying new transactions. When a transaction is initiated, it must be validated through a consensus mechanism, ensuring agreement among all authorized nodes before it is recorded. This distributed validation process eliminates the need for a central authority, contributing to the security and trustworthiness of the system.(Nofer et al., 2017)
+
+Blockchain networks can be broadly classified into three types: public, private, and consortium blockchains. Public blockchains allow unrestricted access; anyone can join the network, participate in transaction validation, and view the ledger. These systems rely on consensus mechanisms such as Proof of Work, where participants compete to solve complex mathematical problems using significant computational power and energy in order to validate transactions. This process, known as "mining," often results in slower transaction speeds. Moreover, while public blockchains offer high transparency, they can be vulnerable to privacy concerns due to the anonymity of users and openness of transaction data. In contrast, private blockchains are permissioned networks controlled by a single organization. Only approved participants can access and contribute to the network. These systems use lightweight consensus protocols such as voting or multi-party agreement, which require less computational effort and enable faster transaction processing. The identities of the nodes are known and managed, offering enhanced data protection and compliance with regulatory requirements. Consortium blockchains combine features from both public and private systems. They are permissioned networks managed by a group of organizations rather than a single entity. In this model, only selected members have authority to validate and write transactions, while others may have read-only access. Consortium blockchains are often used in sectors that require collaboration among multiple trusted stakeholders, such as supply chains or healthcare networks.(Paul, 2021)
+
+
+
+One of the most widely adopted permissioned blockchain frameworks is Hyperledger Fabric, developed under the Linux Foundation. Hyperledger Fabric is designed for enterprise use, emphasizing privacy, performance, and modularity.(Androulaki et al., 2018) It introduces a distinct execute-order-validate approach to transaction processing, which enhances both efficiency and scalability. In the execute phase, transactions are pre-approved (endorsed) by a set of designated peers. These peers simulate the transaction outcomes without updating the ledger. In the order phase, the system determines the final sequence of transactions using a consensus mechanism. Hyperledger Fabric supports modular consensus protocols.s. In the validate phase, transactions are checked against endorsement policies and verified for conflicts before being permanently recorded on the ledger. This three-stage paradigm allows the platform to reduce bottlenecks and support high transaction throughput. Additionally, Hyperledger Fabric does not use mining, which significantly lowers energy consumption. The framework supports smart contracts—known as chaincode—written in general-purpose programming languages , making it accessible to a broader developer base. Another critical feature is its ability to enforce fine-grained privacy through mechanisms like private data collections and channels, which allow specific data to be visible only to authorized participants.(Baliga et al., 2018) These attributes make Hyperledger Fabric particularly well-suited for application in regulated environments, such as blood donation systems. In such contexts, the framework ensures the secure and auditable flow of blood units from donors to recipients, maintains compliance with health data regulations, and provides traceability and data confidentiality throughout the supply chain, which is why it has been utilized.
+
+In the context of blood donation management, robust supply chain systems are essential to ensure traceability, security, and auditability. These three interdependent elements are crucial for the operational integrity of the blood donation process. While such concerns arise across various industries, they become particularly acute in the healthcare sector, where the ability to verify the origin of blood products, protect sensitive donor information, and maintain tamper-proof records forms the foundation of a reliable and trustworthy blood supply chain.Existing solutions show varying degrees of effectiveness.
+
+
+
+Non Blockchain Based Solutions
+
+ (Esmail & Osman, 2018) developed a PHP/MySQL system with barcode tracking across eight blood bank departments. Their digitized approach showed improvements over manual methods but remained vulnerable to data manipulation due to its centralized architecture.
+
+
+
+(Shander et al., 2016) implemeted pbm(patient blood management) which proved to significantly reduce blood transfusions through optimized anemia treatment protocols, though they faced challenges in standardizing outcome measurements across different healthcare systems.
+
+(AlZu’bi et al., 2022)proposed leveraging machine learning to optimize blood donation management, aiming to reduce wastage and shortages while improving donor recruitment and supply-demand matching, which remains an open research challenge.
+
+(Shah et al., 2022) developed an IoT-enabled blood bank management system with a centralized database and mobile applications, featuring real-time blood availability tracking, donor eligibility alerts, and expiry notifications, though full implementation across ambulance networks remains pending.
+
+(Ismail et al., 2021) implemented a cloud-based blood bank solution addressing Nigeria's 1.7 million pint annual blood deficit through verified donor databases and multi-channel communication, while acknowledging persistent infrastructure challenges in rural network coverage.
+
+Blockchain based solutions -Ethereum
+
+(Malhotra et al., 2024) proposed an Ethereum-based solution using smart contracts to enhance transparency and verification. Their system introduced tokenized rewards to incentivize donor participation while addressing privacy concerns.
+
+(Hawashin et al., 2021) combined Ethereum with IPFS to create a secure, decentralized tracking system. Their solution demonstrated robustness against attacks while maintaining data privacy and traceability throughout the supply chain.
+
+(Sadri et al., 2022)implemented an Ethereum framework for blood traceability that successfully reduced fraud incidents. However, their system faced scalability limitations and high transaction costs characteristic of public blockchains.
+
+Blockchain based solutions - Hyperledger Fabric
+
+
+
+Recent studies have explored Hyperledger Fabric for blood tracking. (Kim et al., 2020) implemented a prototype using Hyperledger Composer that monitored temperature as a quality metric. While effective, this solution incurs higher infrastructure costs and lacks off-chain storage capabilities.
+
+ (Lakshminarayanan et al., 2020) achieved 80 transactions per second using Hyperledger Composer with access controls linking to national health registries. (Leng et al., 2021) Reviewed 222 Hyperledger healthcare articles , noting improved data security despite implementation challenges.
+
+Specialized Hyperledger frameworks continue to emerge(Stamatellis et al., 2020) created the PREHEALTH framework using Hyperledger Fabric with advanced cryptography, though computational demands raised performance concerns.(Wang & Qin, 2021) similarly used Hyperledger Fabric for to develop healthcare data management system with hierarchical access controls for Australian medical data, demonstrating feasibility but noting limitations in real-world scalability and off-chain data handling.(Antwi et al., 2021) focused specifically on EHR management using Hyperledger Fabric, confirming its potential for secure data sharing while highlighting integration complexities.
+
+
+
+(Le et al., 2022) proposed BloodChain, a Hyperledger Fabric-based private blockchain system for blood donation management. Their solution enhances traceability of blood origin and quality while ensuring data integrity through immutable ledger records. The architecture integrates stakeholders (donors, medical staff, transporters, patients) with role-based access control to balance transparency and privacy. Performance evaluations demonstrated scalability, with the system handling over 10,000 transactions per second and latency under 500 ms for critical operations.
+
+
+
+
+
+A comparative analysis of hyperledger and ethereium based systems:
+
+Comparative Analysis:
+Metheodology 
+Results
+
+ Hyperledger Fabric vs. Ethereum
+Hyperledger Fabric outperforms Ethereum for blood donation management systems due to its enterprise-oriented design, which addresses critical healthcare requirements. Unlike Ethereum’s public blockchain—which suffers from high latency (14ms+), low throughput (15–30 TPS), and volatile gas fees—Fabric’s permissioned architecture leverages efficient consensus mechanisms (e.g., Raft, PBFT) to achieve sub-second transaction finality (~0.8s) and scalability (1,000+ TPS), ensuring real-time donor eligibility checks and inventory updates. Fabric’s native support for private data collections and channels enables granular access control (e.g., restricting medical records to authorized hospitals), while Ethereum’s transparent ledger poses HIPAA/GDPR compliance risks. Additionally, Fabric eliminates Ethereum’s prohibitive transaction costs, as it operates without gas fees, reducing operational burdens for healthcare providers. Crucially, Fabric’s modular smart contracts (chaincode), written in standard languages like Go or Java, simplify integration with legacy hospital systems and allow dynamic policy updates—a stark contrast to Ethereum’s rigid Solidity-based contracts and gas-limited execution. While Ethereum excels in decentralized tokenized applications, its limitations in privacy, cost, and performance render it impractical for blood donation networks, where auditability, confidentiality, and rapid throughput are paramount. Thus, Hyperledger Fabric emerges as the definitive choice for secure, scalable, and regulation-compliant blood management solutions.
+
+
+
+
+
+Findings:
+
+
+
+Our proposed system:
+
+
+
+
+
+Proposed Workflow of our System
+
+The proposed system facilitates a secure and efficient blood donation and transfusion process using blockchain technology, RFID verification, and token-based authentication. The workflow is divided into two primary perspectives: the donor view and the patient view, each ensuring traceability, eligibility validation, and seamless transaction recording on a Hyperledger Fabric-based ledger.
+
+Donor Workflow
+
+The process begins when a donor registers in the application, providing necessary personal and medical details. This registration request is endorsed and permanently recorded in the blockchain ledger to ensure authenticity. Once registered, the donor can search for nearby blood banks using a Nearby Mapping feature, which helps locate the most convenient donation center. Before scheduling an appointment, the system verifies the donor’s eligibility based on predefined criteria such as health status, recent donation history, and other relevant factors. If deemed eligible, the ledger is updated to reflect the donor’s approved status.
+
+Upon successful validation, the system generates a unique transaction token for the donor and schedules an appointment. A confirmation message is then routed to the donor’s device, ensuring proper communication. When the donor arrives at the blood bank, they present the app’s RFID tag for identity verification. The staff scans the RFID to retrieve donor details and cross-validates the associated pair token for authenticity. A physical RFID tag is then assigned to the donor for real-time tracking during the donation process. Metadata related to the donation, including timestamps and blood unit details, is recorded in the ledger via chaincode execution. Once the transaction is successfully completed, the system updates the ledger with pair token metadata, confirming the donation. The donor then proceeds with the blood donation, completing the cycle.
+
+Patient Workflow
+
+Similarly, patients seeking blood transfusions must first register in the application, providing essential medical and identification details. The registration request undergoes endorsement before being immutably stored in the blockchain. Patients can then search for blood banks with compatible blood units using the Nearby Mapping functionality. The system performs an eligibility check to confirm whether the patient meets transfusion requirements, such as blood type compatibility and medical authorization. If approved, the ledger is updated to reflect the patient’s validated request.
+
+A successful eligibility check triggers the generation of a unique transaction token and the scheduling of a transfusion appointment. The patient receives a confirmation alert on their registered device. Upon arrival at the blood bank, the patient submits the required blood data (e.g., blood type, quantity needed) and presents the app’s RFID tag for verification. Staff members scan the RFID to authenticate the patient’s identity and validate the associated pair token. A physical RFID tag is then assigned for tracking purposes. The transfusion details, including metadata such as blood unit identifiers and timestamps, are recorded in the ledger via chaincode execution. Upon successful validation, the ledger is updated with pair token metadata, and the patient proceeds with the transfusion.
+
+Details of implementation / technical details
+
+In the  BloodBase system, users register through the mobile app by submitting personal and medical details, which are structured into a JSON schema & uploaded to IPFS to ensure both confidentiality and integrity. IPFS returns a unique Content Identifier (CID), and this CID plus essential metadata (nic) are sent via REST API to Hyperledger Fabric, whose chaincode (RegisterUser) stores the record on-chain under a Raft consensus mechanism (verification will be through chain code). When a donor requests an appointment, a TypeScript backend retrieves the encrypted JSON from IPFS, evaluates eligibility based on donation history and health status, and, if approved, updates the ledger and issues a unique session token (e.g., TXN-AB12-XY34), which is also recorded on-chain. The donor receives an RFID or QR tag linked to that token, and at the blood bank the tag is scanned and the backend the donor by fetching the TOKEN from Hyperledger, decrypting and validating the token, and verifying its expiry. Upon collection, a physical RFID tag/ is affixed to the blood bag and the RecordDonation chaincode logs the Donor ID, Token ID, and timestamp on the ledger. When a patient seeks a transfusion, the TypeScript backend matches available blood units by type and availability, and upon patient arrival scans their RFID to verify prescription and token authenticity before logging the transfusion event on-chain. All sensitive files remain encrypted and stored off-chain in IPFS, while only minimal metadata resides on-chain, ensuring a scalable, auditable, and secure workflow underpinned by TLS encryption that happens at the time of  Raft consensus, and clear separation of on-chain storage from off-chain business logic.
+
+
+
+Security Aspect
+
+The system incorporates two primary security mechanisms:
+
+
+
+
+
+Log Reports
+Each time a transaction is completed, a corresponding hash is generated and stored. This hash acts as a traceable record containing timestamp and transaction details. It is linked with a unique token, allowing for easy tracking of individual events. These logs are stored securely on IPFS, and each transaction creates a new log entry to maintain user privacy and avoid data overlap.
+
+
+
+Privacy Preservation
+To ensure privacy, the system maintains a separate log entry for every transaction. This prevents correlation across different sessions and ensures that each user interaction remains isolated. The use of IPFS for log storage adds an additional layer of decentralization and immutability.
+
+Threat Model
+
+The threat model identifies potential vulnerabilities in the system design and outlines mitigation strategies:
+
+
+
+
+
+Data Transfer Vulnerability
+When data is transferred from IPFS to Hyperledger during a transaction, the data’s location reference may change. This opens the system to man-in-the-middle or man-in-the-browser attacks. To mitigate this, secure communication protocols and endpoint validation are enforced.
+
+
+
+User Input Risks
+Malicious input, such as SQL injection attempts, could compromise system integrity or attempt unauthorized access to IPFS-stored data. To prevent this, strict input validation is implemented at every user entry point.
+
+
+
+Configuration Weaknesses
+Default development configurations (e.g., username and password both set as “admin”) are identified as a critical vulnerability. If left unchanged, these could expose the entire system. Secure deployment practices must be followed to address this.
+
+
+
+Trust Boundaries & Data Flow
+The architecture diagram distinguishes trust boundaries (dotted lines), information flow (solid lines), and vulnerability paths (red lines). This helps visualize where the system is most exposed and how information is exchanged securely between components.
+
+
+
+Data Scraping Concerns
+Since sensitive information is handled, it is critical to prevent scraping or unauthorized access. Protective measures are enforced to guard against external scraping of medical or identity-related data.
+
+
+
+
+
+Implementation 
+
+
+
+Implementation The system was implemented using Solidity for smart contract development on the Ethereum platform. Performance testing was conducted on a Windows 10 system with an Intel Core i7 processor and 8 GB RAM. In parallel, Hyperledger Fabric was deployed with Hyperledger Explorer for permissioned network monitoring. The Fabric setup included configuring Docker containers, generating cryptographic materials using cryptogen, validating configuration files, and resolving environment and volume mapping issues. Functional testing was performed using the Explorer UI, with test transactions verified through the dashboard.
+
+Results Ethereum-Based Evaluation Execution Time: Grew with the number of users. For instance, assigning roles to a single user took 18.29 seconds, increasing significantly with larger user sets.
+
+Throughput: Scaled linearly with the number of users and transaction requests, indicating reasonable performance under load.
+
+Latency: Higher compared to private blockchains, due to Ethereum’s block confirmation delays inherent in its consensus model.
+
+Transaction Cost: Depended on gas consumption and network pricing. Each transaction included a function selector and encoded arguments, contributing to overall size and cost.
+
+Hyperledger Fabric Evaluation Total Transactions: 1000
+
+Total Execution Time: 108 seconds
+
+Throughput: 9 transactions per second
+
+Latency: 14 seconds, significantly lower than typical public blockchain environments, demonstrating improved responsiveness in a permissioned setting.
+
+Monitoring: Hyperledger Explorer accurately displayed organizations, peers, blocks, and transactions. A test transaction using CreateAsset was executed and confirmed through the dashboard.
+
+Performance Under Load: Stress testing verified that the system remained stable and responsive even under increased transaction volume.
+
+
+
+
+
+
+
+
+Conclusion
+
+
+
+Future Work
+
+
+References
+
+AlZu’bi, S., Aqel, D., & Lafi, M. (2022). An intelligent system for blood donation process optimization - smart techniques for minimizing blood wastages. Cluster Computing, 25(5), 3617. https://doi.org/10.1007/s10586-022-03594-3
+
+Androulaki, E., Barger, A., Bortnikov, V., Cachin, C., Christidis, K., De, A., Enyeart, D., Ferris, C., Laventman, G., Manevich, Y., Muralidharan, S., Murthy, C., Nguyen, B., Sethi, M., Singh, G., Smith, K., Sorniotti, A., Stathakopoulou, C., Vukolić, M., … Yellick, J. (2018). Hyperledger fabric. https://doi.org/10.1145/3190508.3190538
+
+Antwi, M., Adnane, A., Ahmad, F., Hussain, R., Rehman, M. H. ur, & Kerrache, C. A. (2021). The case of HyperLedger Fabric as a blockchain solution for healthcare applications. Blockchain Research and Applications, 2(1), 100012. https://doi.org/10.1016/j.bcra.2021.100012
+
+Baliga, A., Solanki, N., Verekar, S., Pednekar, A., Kamat, P., & Chatterjee, S. (2018). Performance Characterization of Hyperledger Fabric. https://doi.org/10.1109/cvcbt.2018.00013
+
+Butt, M. (2015). Illegal Blood Banks Are Causing Morbidity and Mortality Due to Unsafe Blood Transfusions in Pakistan : Increasing the Number of Regular Unpaid Volunteer Donors Is the Solution to This Problem. Middle East Journal of Business, 10(4), 73. https://doi.org/10.5742/mejb.2015.92725
+
+Cherian, V. T. (2022). Physiological Functions of Blood. Springer eBooks, 33. https://doi.org/10.1007/978-3-030-95975-3_3
+
+Esmail, M. Y., & Osman, Y. S. H. (2018). Computerized Central Blood Bank Management System (CCBBMS). 2020 International Conference on Computer, Control, Electrical, and Electronics Engineering (ICCCEEE), 1. https://doi.org/10.1109/iccceee.2018.8515789
+
+Hawashin, D., Mahboobeh, D. J., Salah, K., Jayaraman, R., Yaqoob, I., Debe, M., & Ellahham, S. (2021). Blockchain-Based Management of Blood Donation. IEEE Access, 9, 163016. https://doi.org/10.1109/access.2021.3133953
+
+Ismail, O., Misra, S., Oluranti, J., & Ahuja, R. (2021). Centralized Blood Bank Database and Management System. Lecture Notes in Electrical Engineering, 109. https://doi.org/10.1007/978-981-15-8297-4_10
+
+Jamal, S., Mansoor, N., Ali, A., Ali, N., Aijaz, J., & Meraj, F. (2023). Degree of blood safety of voluntary non‐remunerated versus replacement blood donations: A multi‐centre study of the large cohort of blood donors from two provinces of Pakistan. Vox Sanguinis, 118(12), 1078. https://doi.org/10.1111/vox.13546
+
+Javed, S. O., Saleem, A., Sahito, A. M., & Hasan, M. M. (2022). Transfusion Transmitted Infections: A Present-Day Danger for Pakistan. American Journal of Tropical Medicine and Hygiene, 106(5), 1311. https://doi.org/10.4269/ajtmh.21-1136
+
+Kim, S., Kim, J., & Kim, D. (2020). Implementation of a Blood Cold Chain System Using Blockchain Technology. Applied Sciences, 10(9), 3330. https://doi.org/10.3390/app10093330
+
+Lakshminarayanan, S., Kumar, P. N., & Dhanya, N. M. (2020). Implementation of Blockchain-Based Blood Donation Framework. IFIP Advances in Information and Communication Technology, 276. https://doi.org/10.1007/978-3-030-63467-4_22
+
+Le, H. T., Thanh, L. N. T., Nguyen, T. A., Ha, X. S., & Duong‐Trung, N. (2022). BloodChain: A Blood Donation Network Managed by Blockchain Technologies. Network, 2(1), 21. https://doi.org/10.3390/network2010002
+
+Leng, Z., Tan, Z., & Wang, K. (2021). Application of Hyperledger in the Hospital Information Systems: A Survey. IEEE Access, 9, 128965. https://doi.org/10.1109/access.2021.3112608
+
+Malhotra, M., Mukherjee, P., Aich, M., & Chhawan, S. (2024). Blockchain-Driven Blood Donation: Overcoming Challenges and Building Trust in Healthcare. 1. https://doi.org/10.1109/assic60049.2024.10507966
+
+Mumtaz, Z., Bowen, S., & Mumtaz, R. (2011). Meanings of blood, bleeding and blood donations in Pakistan: implications for national vs global safe blood supply policies. Health Policy and Planning, 27(2), 147. https://doi.org/10.1093/heapol/czr016
+
+Nofer, M., Gomber, P., Hinz, O., & Schiereck, D. (2017). Blockchain. Business & Information Systems Engineering, 59(3), 183. https://doi.org/10.1007/s12599-017-0467-3
+
+Paul, P. K. (2021). Blockchain Technology and its Types—A Short Review. International Journal of Applied Science and Engineering, 9(2). https://doi.org/10.30954/2322-0465.2.2021.7
+
+Sadri, S., Shahzad, A., & Zhang, K. (2022). Blockchain Traceability in Healthcare: Blood Donation Supply Chain. 2022 24th International Conference on Advanced Communication Technology (ICACT), 1. https://doi.org/10.23919/icact53585.2022.9728950
+
+Shah, A., Shah, D., Shah, D., Chordiya, D., Doshi, N., & Dwivedi, R. (2022). Blood Bank Management and Inventory Control Database Management System. Procedia Computer Science, 198, 404. https://doi.org/10.1016/j.procs.2021.12.261
+
+Shander, A., Isbister, J. P., & Gombotz, H. (2016). Patient blood management: the global view. Transfusion, 56. https://doi.org/10.1111/trf.13529
+
+Stamatellis, C., Papadopoulos, P., Pitropakis, N., Katsikas, S., & Buchanan, W. J. (2020). A Privacy-Preserving Healthcare Framework Using Hyperledger Fabric. Sensors, 20(22), 6587. https://doi.org/10.3390/s20226587
+
+Wang, Q., & Qin, S. (2021). A Hyperledger Fabric-Based System Framework for Healthcare Data Management. Applied Sciences, 11(24), 11693. https://doi.org/10.3390/app112411693
+
+Zafar, A., Sarosh, N., Tariq, S., & Bashir, S. (2022). A Clinical Audit of blood component transfusion practices in Paediatric intensive care unit of a Tertiary Care Hospital, Rawalpindi. Journal of Rawalpindi Medical College, 26(1), 103. https://doi.org/10.37939/jrmc.v26i1.1800
+
+Zafar, M. H., Khan, I. K., Rehman, A. ur, & Zafar, S. (2022). A Novel Blockchain-Based Model for Blood Donation System. EAI Endorsed Transactions on Context-Aware Systems and Applications, 8(1). https://doi.org/10.4108/eetcasa.v8i1.2546
+
+Zaheer, H. A., & Waheed, U. (2014). Blood safety system reforms in Pakistan. PubMed, 12(4), 452. https://doi.org/10.2450/2014.0253-13
+
+Хан. (2009). WEB-BASED INFORMATION SYSTEM FOR BLOOD DONATION. International Journal of Digital Content Technology and Its Applications, 3(2). https://doi.org/10.4156/jdcta.vol3.issue2.khan

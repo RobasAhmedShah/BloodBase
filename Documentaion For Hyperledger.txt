@@ -1,0 +1,1528 @@
+Prerequisites¶
+The following prerequisites are required to run a Docker-based Fabric test network on your local machine.
+
+Mac¶
+Homebrew¶
+For macOS, we recommend using Homebrew to manage the prereqs.
+
+$ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+$ brew --version
+Homebrew 2.5.2
+The Xcode command line tools will be installed as part of the Homebrew installation. Once Homebrew is ready, installing the necessary prerequisites is very easy:
+
+Git¶
+Install the latest version of git if it is not already installed.
+
+$ brew install git
+$ git --version
+git version 2.23.0
+cURL¶
+Install the latest version of cURL if it is not already installed.
+
+$ brew install curl
+$ curl --version
+curl 7.64.1 (x86_64-apple-darwin19.0) libcurl/7.64.1 (SecureTransport) LibreSSL/2.8.3 zlib/1.2.11 nghttp2/1.39.2
+Release-Date: 2019-03-27
+Docker¶
+Install the latest version of Docker Desktop if it is not already installed. Since Docker Desktop is a UI application on Mac, use cask to install it.
+
+Homebrew v2.x:
+
+$ brew cask install --appdir="/Applications" docker
+Homebrew v3.x:
+
+$ brew install --cask --appdir="/Applications" docker
+Docker Desktop must be launched to complete the installation so be sure to open the application after installing it:
+
+$ open /Applications/Docker.app
+Once installed, confirm the latest versions of both docker and docker-compose executables were installed.
+
+$ docker --version
+Docker version 19.03.12, build 48a66213fe
+$ docker-compose --version
+docker-compose version 1.27.2, build 18f557f9
+Note: Some users have reported errors while running Fabric-Samples with the Docker Desktop gRPC FUSE for file sharing option checked. Please uncheck this option in your Docker Preferences to continue using osxfs for file sharing.
+
+Go¶
+Optional: Install the latest Fabric supported version of Go if it is not already installed (only required if you will be writing Go chaincode or SDK applications).
+
+$ brew install go@1.24.2
+$ go version
+go1.24.2 darwin/amd64
+JQ¶
+Optional: Install the latest version of jq if it is not already installed (only required for the tutorials related to channel configuration transactions).
+
+$ brew install jq
+$ jq --version
+jq-1.6
+Linux¶
+Git¶
+Install the latest version of git if it is not already installed.
+
+$ sudo apt-get install git
+cURL¶
+Install the latest version of cURL if it is not already installed.
+
+$ sudo apt-get install curl
+Docker¶
+Install the latest version of Docker if it is not already installed.
+
+sudo apt-get -y install docker-compose
+Once installed, confirm that the latest versions of both Docker and Docker Compose executables were installed.
+
+$ docker --version
+Docker version 19.03.12, build 48a66213fe
+$ docker-compose --version
+docker-compose version 1.27.2, build 18f557f9
+Make sure the Docker daemon is running.
+
+sudo systemctl start docker
+Optional: If you want the Docker daemon to start when the system starts, use the following:
+
+sudo systemctl enable docker
+Add your user to the Docker group.
+
+sudo usermod -a -G docker <username>
+Go¶
+Optional: Install the latest version of Go if it is not already installed (only required if you will be writing Go chaincode or SDK applications).
+
+JQ¶
+Optional: Install the latest version of jq if it is not already installed (only required for the tutorials related to channel configuration transactions).
+
+Windows¶
+Docker¶
+Install the latest version of Docker Desktop if it is not already installed.
+
+WSL2¶
+Both the Fabric documentation and Fabric samples rely heavily on a bash environment. The recommended path is to use WSL2 (Windows Subsystem for Linux version 2) to provide a native Linux environment and then you can follow the Linux prerequisites section (excluding the Linux Docker prerequisite as you already have Docker Desktop) and install them into your WSL2 linux distribution.
+
+WSL2 may not be installed by default; you can check and install WSL2 by going into “Programs and Features”, clicking on “Turn Windows features on or off” and ensuring that both “Windows Subsystem For Linux” and “Virtual Machine Platform” are selected.
+
+Next you will need to install a Linux distribution such as Ubuntu-22.04 and make sure it’s set to using version 2 of WSL. Refer to Install WSL for more information.
+
+Finally, you need to ensure Docker Desktop has integration enabled for your distribution so it can interact with Docker elements, such as a bash command window. To do this, open the Docker Desktop gui and go into settings, select Resources and them WSL Integration and ensure the checkbox for enable integration is checked. You should then see your WSL2 linux distribution listed (if you don’t then it is probably because it is still a WSL1 distribution and needs to be converted to WSL2) and you can then toggle the switch to enable integration for that distro. Refer to Docker Desktop WSL2 backend for more information
+
+Microsoft VS Code (Optional)¶
+Microsoft VS Code provides an IDE that has tight integration with WSL2 Linux Distributions. Search the Microsoft Marketplace in VS Code for the Remote Development extension pack for more information. This pack includes, among other things, the Remote - WSL extension and the Remote - Containers extension.
+
+Git For Windows (Optional)¶
+Although not required, if you do decide to install Git on Windows and manage the Fabric repositories natively (as opposed to within WSL2 and its Git installation), then make sure you configure Git as follows:
+
+Update the following git configurations:
+
+git config --global core.autocrlf false
+git config --global core.longpaths true
+You can check the setting of these parameters with the following commands:
+
+git config --get core.autocrlf
+git config --get core.longpaths
+These output from these commands should be false and true respectively.
+
+Notes¶
+These prerequisites are recommended for Fabric users. If you are a Fabric developer, please refer to the instructions for Setting up the development environment.
+
+
+Install Fabric and Fabric Samples¶
+Please install the Prerequisites before following these install instructions.
+
+We think the best way to understand something is to use it yourself.  To help you use Fabric, we have created a simple Fabric test network using Docker compose, and a set of sample applications that demonstrate its core capabilities.
+
+We also have precompiled Fabric CLI tool binaries and Fabric Docker Images which will be downloaded to your environment, to get you going.
+
+The cURL command in the instructions below sets up your environment so that you can run the Fabric test network. Specifically, it performs the following steps:
+
+Clones the hyperledger/fabric-samples repository.
+
+Downloads the latest Hyperledger Fabric Docker images and tags them as latest
+
+Downloads the following platform-specific Hyperledger Fabric CLI tool binaries and config files into the fabric-samples /bin and /config directories. These binaries will help you interact with the test network.
+
+configtxgen,
+
+configtxlator,
+
+cryptogen,
+
+discover,
+
+idemixgen,
+
+orderer,
+
+osnadmin,
+
+peer,
+
+fabric-ca-client,
+
+fabric-ca-server
+
+Download Fabric samples, Docker images, and binaries¶
+A working directory is required - for example, Go Developers use the $HOME/go/src/github.com/<your_github_userid> directory.  This is a Golang Community recommendation for Go projects.
+
+mkdir -p $HOME/go/src/github.com/<your_github_userid>
+cd $HOME/go/src/github.com/<your_github_userid>
+To get the install script:
+
+curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
+Run the script with the -h option to see the options:
+
+./install-fabric.sh -h
+Usage: ./install-fabric.sh [-f|--fabric-version <arg>] [-c|--ca-version <arg>] <comp-1> [<comp-2>] ... [<comp-n>] ...
+        <comp>: Component to install one or more of  d[ocker]|b[inary]|s[amples]. If none specified, all will be installed
+        -f, --fabric-version: FabricVersion (default: '2.5.13')
+        -c, --ca-version: Fabric CA Version (default: '1.5.15')
+Choosing which components¶
+To specify the components to download add one or more of the following arguments. Each argument can be shortened to its first letter.
+
+docker to use Docker to download the Fabric Container Images
+
+podman to use podman to download the Fabric Container Images
+
+binary to download the Fabric binaries
+
+samples to clone the fabric-samples github repo to the current directory
+
+To pull the Docker containers and clone the samples repo, run one of these commands for example
+
+./install-fabric.sh docker samples binary
+or
+./install-fabric.sh d s b
+If no arguments are supplied, then the arguments docker binary samples are assumed.
+
+Choosing which version¶
+By default the latest version of the components are used; these can be altered by using the options --fabric-version and -ca-version. -f and -c are the respective short forms.
+
+For example, to download the v2.5.13 binaries, run this command
+
+./install-fabric.sh --fabric-version 2.5.13 binary
+You have completed installing Fabric samples, Docker images, and binaries to your system.
+
+If you are looking to set up your environment to start contributing to Fabric, please refer to the instructions for Setting up the contributor development environment.
+
+Note: this is an updated install script with the same end-result as the existing script, but with an improved syntax. This script adopts the postitive opt-in approach to selecting the components to install. The original script is still present at the same location curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/bootstrap.sh| bash -s
+
+If you need help, post your questions and share your logs on the fabric-questions channel on Hyperledger Discord Chat or on StackOverflow.
+
+
+
+Fabric Contract APIs and Application APIs¶
+Fabric Contract APIs¶
+Hyperledger Fabric offers a number of APIs to support developing smart contracts (chaincode) in various programming languages. Smart contract APIs are available for Go, Node.js, and Java.
+
+Go contract API and documentation.
+
+Node.js contract API and documentation.
+
+Java contract API and documentation.
+
+Fabric Application APIs¶
+Hyperledger Fabric offers application APIs to support developing client applications in Go, Node.js, and Java.
+
+Fabric Gateway client API and documentation.
+
+Getting Started - Run Fabric¶
+Now that you have downloaded Fabric and the samples, you can start running Fabric. If you have not installed all the required software, follow the instructions on Getting Started - Install first.
+
+Running a Test Network tutorial - helps you understand how Fabric networks work.
+
+Deploying a smart contract to a channel tutorial - helps you develop and deploy smart contracts.
+
+Running a Fabric Application tutorial - helps you develop blockchain applications on top of a Fabric network.
+
+Both tutorials will link to deeper explanations in Key Concepts.
+
+Using the Fabric test network¶
+After you have downloaded the Hyperledger Fabric Docker images and samples, you can deploy a test network by using scripts that are provided in the fabric-samples repository. The test network is provided for learning about Fabric by running nodes on your local machine. Developers can use the network to test their smart contracts and applications. The network is meant to be used only as a tool for education and testing and not as a model for how to set up a network. In general, modifications to the scripts are discouraged and could break the network. It is based on a limited configuration that should not be used as a template for deploying a production network:
+
+It includes two peer organizations and an ordering organization.
+
+For simplicity, a single node Raft ordering service is configured.
+
+To reduce complexity, a TLS Certificate Authority (CA) is not deployed. All certificates are issued by the root CAs.
+
+The sample network deploys a Fabric network with Docker Compose. Because the nodes are isolated within a Docker Compose network, the test network is not configured to connect to other running Fabric nodes.
+
+To learn how to use Fabric in production, see Deploying a production network.
+
+Note: These instructions have been verified to work against the latest stable Fabric Docker images and the pre-compiled setup utilities within the supplied tar file. If you run these commands with images or tools from the current main branch, it is possible that you will encounter errors.
+
+Before you begin¶
+Before you can run the test network, you need to install Fabric Samples in your environment. Follow the instructions on getting_started to install the required software.
+
+Note: The test network has been successfully verified with Docker Desktop version 2.5.0.1 and is the recommended version at this time. Higher versions may not work.
+
+Bring up the test network¶
+You can find the scripts to bring up the network in the test-network directory of the fabric-samples repository. Navigate to the test network directory by using the following command:
+
+cd fabric-samples/test-network
+In this directory, you can find an annotated script, network.sh, that stands up a Fabric network using the Docker images on your local machine. You can run ./network.sh -h to print the script help text:
+
+Usage:
+  network.sh <Mode> [Flags]
+    Modes:
+      up - Bring up Fabric orderer and peer nodes. No channel is created
+      up createChannel - Bring up fabric network with one channel
+      createChannel - Create and join a channel after the network is created
+      deployCC - Deploy a chaincode to a channel (defaults to asset-transfer-basic)
+      down - Bring down the network
+
+    Flags:
+    Used with network.sh up, network.sh createChannel:
+    -ca <use CAs> -  Use Certificate Authorities to generate network crypto material
+    -c <channel name> - Name of channel to create (defaults to "mychannel")
+    -s <dbtype> - Peer state database to deploy: goleveldb (default) or couchdb
+    -r <max retry> - CLI times out after certain number of attempts (defaults to 5)
+    -d <delay> - CLI delays for a certain number of seconds (defaults to 3)
+    -i <imagetag> - Docker image tag of Fabric to deploy (defaults to "latest")
+    -cai <ca_imagetag> - Docker image tag of Fabric CA to deploy (defaults to "latest")
+    -verbose - Verbose mode
+
+    Used with network.sh deployCC
+    -c <channel name> - Name of channel to deploy chaincode to
+    -ccn <name> - Chaincode name.
+    -ccl <language> - Programming language of the chaincode to deploy: go (default), java, javascript, typescript
+    -ccv <version>  - Chaincode version. 1.0 (default), v2, version3.x, etc
+    -ccs <sequence>  - Chaincode definition sequence. Must be an integer, 1 (default), 2, 3, etc
+    -ccp <path>  - File path to the chaincode.
+    -ccep <policy>  - (Optional) Chaincode endorsement policy using signature policy syntax. The default policy requires an endorsement from Org1 and Org2
+    -cccg <collection-config>  - (Optional) File path to private data collections configuration file
+    -cci <fcn name>  - (Optional) Name of chaincode initialization function. When a function is provided, the execution of init will be requested and the function will be invoked.
+
+    -h - Print this message
+
+ Possible Mode and flag combinations
+   up -ca -r -d -s -i -cai -verbose
+   up createChannel -ca -c -r -d -s -i -cai -verbose
+   createChannel -c -r -d -verbose
+   deployCC -ccn -ccl -ccv -ccs -ccp -cci -r -d -verbose
+
+ Examples:
+   network.sh up createChannel -ca -c mychannel -s couchdb -i 2.0.0
+   network.sh createChannel -c channelName
+   network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-javascript/ -ccl javascript
+   network.sh deployCC -ccn mychaincode -ccp ./user/mychaincode -ccv 1 -ccl javascript
+From inside the test-network directory, run the following command to remove any containers or artifacts from any previous runs:
+
+./network.sh down
+You can then bring up the network by issuing the following command. You will experience problems if you try to run the script from another directory:
+
+./network.sh up
+This command creates a Fabric network that consists of two peer nodes, one ordering node. No channel is created when you run ./network.sh up, though we will get there in a future step. If the command completes successfully, you will see the logs of the nodes being created:
+
+Creating network "fabric_test" with the default driver
+Creating volume "net_orderer.example.com" with default driver
+Creating volume "net_peer0.org1.example.com" with default driver
+Creating volume "net_peer0.org2.example.com" with default driver
+Creating peer0.org2.example.com ... done
+Creating orderer.example.com    ... done
+Creating peer0.org1.example.com ... done
+Creating cli                    ... done
+CONTAINER ID   IMAGE                               COMMAND             CREATED         STATUS                  PORTS                                            NAMES
+1667543b5634   hyperledger/fabric-tools:latest     "/bin/bash"         1 second ago    Up Less than a second                                                    cli
+b6b117c81c7f   hyperledger/fabric-peer:latest      "peer node start"   2 seconds ago   Up 1 second             0.0.0.0:7051->7051/tcp                           peer0.org1.example.com
+703ead770e05   hyperledger/fabric-orderer:latest   "orderer"           2 seconds ago   Up Less than a second   0.0.0.0:7050->7050/tcp, 0.0.0.0:7053->7053/tcp   orderer.example.com
+718d43f5f312   hyperledger/fabric-peer:latest      "peer node start"   2 seconds ago   Up 1 second             7051/tcp, 0.0.0.0:9051->9051/tcp                 peer0.org2.example.com
+If you don’t get this result, jump down to Troubleshooting for help on what might have gone wrong. By default, the network uses the cryptogen tool to bring up the network. However, you can also bring up the network with Certificate Authorities.
+
+The components of the test network¶
+After your test network is deployed, you can take some time to examine its components. Run the following command to list all of Docker containers that are running on your machine. You should see the three nodes that were created by the network.sh script:
+
+docker ps -a
+Each node and user that interacts with a Fabric network needs to belong to an organization in order to participate in the network. The test network includes two peer organizations, Org1 and Org2. It also includes a single orderer organization that maintains the ordering service of the network.
+
+Peers are the fundamental components of any Fabric network. Peers store the blockchain ledger and validate transactions before they are committed to the ledger. Peers run the smart contracts that contain the business logic that is used to manage the assets on the blockchain ledger.
+
+Every peer in the network needs to belong to an organization. In the test network, each organization operates one peer each, peer0.org1.example.com and peer0.org2.example.com.
+
+Every Fabric network also includes an ordering service. While peers validate transactions and add blocks of transactions to the blockchain ledger, they do not decide on the order of transactions or include them into new blocks. On a distributed network, peers may be running far away from each other and not have a common view of when a transaction was created. Coming to consensus on the order of transactions is a costly process that would create overhead for the peers.
+
+An ordering service allows peers to focus on validating transactions and committing them to the ledger. After ordering nodes receive endorsed transactions from clients, they come to consensus on the order of transactions and then add them to blocks. The blocks are then distributed to peer nodes, which add the blocks to the blockchain ledger.
+
+The sample network uses a single node Raft ordering service that is operated by the orderer organization. You can see the ordering node running on your machine as orderer.example.com. While the test network only uses a single node ordering service, a production network would have multiple ordering nodes, operated by one or multiple orderer organizations. The different ordering nodes would use the Raft consensus algorithm to come to agreement on the order of transactions across the network.
+
+Creating a channel¶
+Now that we have peer and orderer nodes running on our machine, we can use the script to create a Fabric channel for transactions between Org1 and Org2. Channels are a private layer of communication between specific network members. Channels can be used only by organizations that are invited to the channel, and are invisible to other members of the network. Each channel has a separate blockchain ledger. Organizations that have been invited “join” their peers to the channel to store the channel ledger and validate the transactions on the channel.
+
+You can use the network.sh script to create a channel between Org1 and Org2 and join their peers to the channel. Run the following command to create a channel with the default name of mychannel:
+
+./network.sh createChannel
+If the command was successful, you can see the following message printed in your logs:
+
+Channel 'mychannel' joined
+You can also use the channel flag to create a channel with custom name. As an example, the following command would create a channel named channel1:
+
+./network.sh createChannel -c channel1
+The channel flag also allows you to create multiple channels by specifying different channel names. After you create mychannel or channel1, you can use the command below to create a second channel named channel2:
+
+./network.sh createChannel -c channel2
+NOTE: Make sure the name of the channel applies the following restrictions:
+
+contains only lower case ASCII alphanumerics, dots ‘.’, and dashes ‘-’
+
+is shorter than 250 characters
+
+starts with a letter
+
+If you want to bring up the network and create a channel in a single step, you can use the up and createChannel modes together:
+
+./network.sh up createChannel
+Starting a chaincode on the channel¶
+After you have created a channel, you can start using smart contracts to interact with the channel ledger. Smart contracts contain the business logic that governs assets on the blockchain ledger. Applications run by members of the network can invoke smart contracts to create assets on the ledger, as well as change and transfer those assets. Applications also query smart contracts to read data on the ledger.
+
+To ensure that transactions are valid, transactions created using smart contracts typically need to be signed by multiple organizations to be committed to the channel ledger. Multiple signatures are integral to the trust model of Fabric. Requiring multiple endorsements for a transaction prevents one organization on a channel from tampering with the ledger on their peer or using business logic that was not agreed to. To sign a transaction, each organization needs to invoke and execute the smart contract on their peer, which then signs the output of the transaction. If the output is consistent and has been signed by enough organizations, the transaction can be committed to the ledger. The policy that specifies the set organizations on the channel that need to execute the smart contract is referred to as the endorsement policy, which is set for each chaincode as part of the chaincode definition.
+
+In Fabric, smart contracts are deployed on the network in packages referred to as chaincode. A Chaincode is installed on the peers of an organization and then deployed to a channel, where it can then be used to endorse transactions and interact with the blockchain ledger. Before a chaincode can be deployed to a channel, the members of the channel need to agree on a chaincode definition that establishes chaincode governance. When the required number of organizations agree, the chaincode definition can be committed to the channel, and the chaincode is ready to be used.
+
+After you have used the network.sh to create a channel, you can start a chaincode on the channel using the following command:
+
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go
+The deployCC subcommand will install the asset-transfer (basic) chaincode on peer0.org1.example.com and peer0.org2.example.com and then deploy the chaincode on the channel specified using the channel flag (or mychannel if no channel is specified). If you are deploying a chaincode for the first time, the script will install the chaincode dependencies. You can use the language flag, -ccl, to install the Go, typescript or javascript versions of the chaincode. You can find the asset-transfer (basic) chaincode in the asset-transfer-basic folder of the fabric-samples directory. This folder contains sample chaincode that are provided as examples and used by tutorials to highlight Fabric features.
+
+Interacting with the network¶
+After you bring up the test network, you can use the peer CLI to interact with your network. The peer CLI allows you to invoke deployed smart contracts, update channels, or install and deploy new smart contracts from the CLI.
+
+Make sure that you are operating from the test-network directory. If you followed the instructions to install the Samples, Binaries and Docker Images, You can find the peer binaries in the bin folder of the fabric-samples repository. Use the following command to add those binaries to your CLI Path:
+
+export PATH=${PWD}/../bin:$PATH
+You also need to set the FABRIC_CFG_PATH to point to the core.yaml file in the fabric-samples repository:
+
+export FABRIC_CFG_PATH=$PWD/../config/
+You can now set the environment variables that allow you to operate the peer CLI as Org1:
+
+# Environment variables for Org1
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+The CORE_PEER_TLS_ROOTCERT_FILE and CORE_PEER_MSPCONFIGPATH environment variables point to the Org1 crypto material in the organizations folder.
+
+If you used ./network.sh deployCC -ccl go to install and start the asset-transfer (basic) chaincode, you can invoke the InitLedger function of the (Go) chaincode to put an initial list of assets on the ledger (if using TypeScript or JavaScript ./network.sh deployCC -ccl javascript for example, you will invoke the InitLedger function of the respective chaincodes).
+
+Run the following command to initialize the ledger with assets. (Note the CLI does not access the Fabric Gateway peer, so each endorsing peer must be specified.)
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+If successful, you should see output similar to the following example:
+
+-> INFO 001 Chaincode invoke successful. result: status:200
+You can now query the ledger from your CLI. Run the following command to get the list of assets that were added to your channel ledger:
+
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+If successful, you should see the following output:
+
+[
+  {"ID": "asset1", "color": "blue", "size": 5, "owner": "Tomoko", "appraisedValue": 300},
+  {"ID": "asset2", "color": "red", "size": 5, "owner": "Brad", "appraisedValue": 400},
+  {"ID": "asset3", "color": "green", "size": 10, "owner": "Jin Soo", "appraisedValue": 500},
+  {"ID": "asset4", "color": "yellow", "size": 10, "owner": "Max", "appraisedValue": 600},
+  {"ID": "asset5", "color": "black", "size": 15, "owner": "Adriana", "appraisedValue": 700},
+  {"ID": "asset6", "color": "white", "size": 15, "owner": "Michel", "appraisedValue": 800}
+]
+Chaincodes are invoked when a network member wants to transfer or change an asset on the ledger. Use the following command to change the owner of an asset on the ledger by invoking the asset-transfer (basic) chaincode:
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"TransferAsset","Args":["asset6","Christopher"]}'
+If the command is successful, you should see the following response:
+
+2019-12-04 17:38:21.048 EST [chaincodeCmd] chaincodeInvokeOrQuery -> INFO 001 Chaincode invoke successful. result: status:200
+Because the endorsement policy for the asset-transfer (basic) chaincode requires the transaction to be signed by Org1 and Org2, the chaincode invoke command needs to target both peer0.org1.example.com and peer0.org2.example.com using the --peerAddresses flag. Because TLS is enabled for the network, the command also needs to reference the TLS certificate for each peer using the --tlsRootCertFiles flag.
+
+After we invoke the chaincode, we can use another query to see how the invoke changed the assets on the blockchain ledger. Since we already queried the Org1 peer, we can take this opportunity to query the chaincode running on the Org2 peer. Set the following environment variables to operate as Org2:
+
+# Environment variables for Org2
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+You can now query the asset-transfer (basic) chaincode running on peer0.org2.example.com:
+
+peer chaincode query -C mychannel -n basic -c '{"Args":["ReadAsset","asset6"]}'
+The result will show that "asset6" was transferred to Christopher:
+
+{"ID":"asset6","color":"white","size":15,"owner":"Christopher","appraisedValue":800}
+Bring down the network¶
+When you are finished using the test network, you can bring down the network with the following command:
+
+./network.sh down
+The command will stop and remove the node and chaincode containers, delete the organization crypto material, and remove the chaincode images from your Docker Registry. The command also removes the channel artifacts and docker volumes from previous runs, allowing you to run ./network.sh up again if you encountered any problems.
+
+Next steps¶
+Now that you have used the test network to deploy Hyperledger Fabric on your local machine, you can use the tutorials to start developing your own solution:
+
+Learn how to deploy your own smart contracts to the test network using the Deploying a smart contract to a channel tutorial.
+
+Visit the Running a Fabric Application tutorial to learn how to use the APIs provided by the Fabric SDKs to invoke smart contracts from your client applications.
+
+You can find the complete list of Fabric tutorials on the tutorials page.
+
+Bring up the network with Certificate Authorities¶
+Hyperledger Fabric uses public key infrastructure (PKI) to verify the actions of all network participants. Every node, network administrator, and user submitting transactions needs to have a public certificate and private key to verify their identity. These identities need to have a valid root of trust, establishing that the certificates were issued by an organization that is a member of the network. The network.sh script creates all of the cryptographic material that is required to deploy and operate the network before it creates the peer and ordering nodes.
+
+By default, the script uses the cryptogen tool to create the certificates and keys. The tool is provided for development and testing, and can quickly create the required crypto material for Fabric organizations with a valid root of trust. When you run ./network.sh up, you can see the cryptogen tool creating the certificates and keys for Org1, Org2, and the Orderer Org.
+
+creating Org1, Org2, and ordering service organization with crypto from 'cryptogen'
+
+/Usr/fabric-samples/test-network/../bin/cryptogen
+
+##########################################################
+##### Generate certificates using cryptogen tool #########
+##########################################################
+
+##########################################################
+############ Create Org1 Identities ######################
+##########################################################
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-org1.yaml --output=organizations
+org1.example.com
++ res=0
++ set +x
+##########################################################
+############ Create Org2 Identities ######################
+##########################################################
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-org2.yaml --output=organizations
+org2.example.com
++ res=0
++ set +x
+##########################################################
+############ Create Orderer Org Identities ###############
+##########################################################
++ cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output=organizations
++ res=0
++ set +x
+However, the test network script also provides the option to bring up the network using Certificate Authorities (CAs). In a production network, each organization operates a CA (or multiple intermediate CAs) that creates the identities that belong to their organization. All of the identities created by a CA run by the organization share the same root of trust. Although it takes more time than using cryptogen, bringing up the test network using CAs provides an introduction to how a network is deployed in production. Deploying CAs also allows you to enroll client identities with the Fabric SDKs and create a certificate and private key for your applications.
+
+If you would like to bring up a network using Fabric CAs, first run the following command to bring down any running networks:
+
+./network.sh down
+You can then bring up the network with the CA flag:
+
+./network.sh up -ca
+After you issue the command, you can see the script bringing up three CAs, one for each organization in the network.
+
+##########################################################
+##### Generate certificates using Fabric CA's ############
+##########################################################
+Creating network "net_default" with the default driver
+Creating ca_org2    ... done
+Creating ca_org1    ... done
+Creating ca_orderer ... done
+It is worth taking time to examine the logs generated by the ./network.sh script after the CAs have been deployed. The test network uses the Fabric CA client to register node and user identities with the CA of each organization. The script then uses the enroll command to generate an MSP folder for each identity. The MSP folder contains the certificate and private key for each identity, and establishes the identity’s role and membership in the organization that operated the CA. You can use the following command to examine the MSP folder of the Org1 admin user:
+
+tree organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/
+The command will reveal the MSP folder structure and configuration file:
+
+organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/
+└── msp
+    ├── IssuerPublicKey
+    ├── IssuerRevocationPublicKey
+    ├── cacerts
+    │   └── localhost-7054-ca-org1.pem
+    ├── config.yaml
+    ├── keystore
+    │   └── 58e81e6f1ee8930df46841bf88c22a08ae53c1332319854608539ee78ed2fd65_sk
+    ├── signcerts
+    │   └── cert.pem
+    └── user
+You can find the certificate of the admin user in the signcerts folder and the private key in the keystore folder. To learn more about MSPs, see the Membership Service Provider concept topic.
+
+Both cryptogen and the Fabric CAs generate the cryptographic material for each organization in the organizations folder. You can find the commands that are used to set up the network in the registerEnroll.sh script in the organizations/fabric-ca directory. To learn more about how you would use the Fabric CA to deploy a Fabric network, visit the Fabric CA operations guide. You can learn more about how Fabric uses PKI by visiting the identity and membership concept topics.
+
+What’s happening behind the scenes?¶
+If you are interested in learning more about the sample network, you can investigate the files and scripts in the test-network directory. The steps below provide a guided tour of what happens when you issue the command of ./network.sh up.
+
+./network.sh creates the certificates and keys for two peer organizations and the orderer organization. By default, the script uses the cryptogen tool using the configuration files located in the organizations/cryptogen folder. If you use the -ca flag to create Certificate Authorities, the script uses Fabric CA server configuration files and registerEnroll.sh script located in the organizations/fabric-ca folder. Both cryptogen and the Fabric CAs create the crypto material and MSP folders for all three organizations in the organizations folder.
+
+Once the organization crypto material has been generated, the network.sh can bring up the nodes of the network. The script uses the docker-compose-test-net.yaml file in the docker folder to create the peer and orderer nodes. The docker folder also contains the docker-compose-e2e.yaml file that brings up the nodes of the network alongside three Fabric CAs. This file is meant to be used to run end-to-end tests by the Fabric SDK. Refer to the Node SDK repo for details on running these tests.
+
+If you use the createChannel subcommand, ./network.sh runs the createChannel.sh script in the scripts folder to create a channel using the supplied channel name. The script uses the configtxgen tool to create the channel genesis block based on the TwoOrgsApplicationGenesis channel profile in the configtx/configtx.yaml file. After creating the channel, the script uses the peer cli to join peer0.org1.example.com and peer0.org2.example.com to the channel, and make both of the peers anchor peers.
+
+If you issue the deployCC command, ./network.sh runs the deployCC.sh script to install the asset-transfer (basic) chaincode on both peers and then define then chaincode on the channel. Once the chaincode definition is committed to the channel, the peer cli initializes the chaincode using the Init and invokes the chaincode to put initial data on the ledger.
+
+Troubleshooting¶
+If you have any problems with the tutorial, review the following:
+
+You should always start your network fresh. You can use the following command to remove the artifacts, crypto material, containers, volumes, and chaincode images from previous runs:
+
+./network.sh down
+You will see errors if you do not remove old containers, images, and volumes.
+
+If you see Docker errors, first check your Docker version (Prerequisites), and then try restarting your Docker process. Problems with Docker are oftentimes not immediately recognizable. For example, you may see errors that are the result of your node not being able to access the crypto material mounted within a container.
+
+If problems persist, you can remove your images and start from scratch:
+
+docker rm -f $(docker ps -aq)
+docker rmi -f $(docker images -q)
+If you are running Docker Desktop on macOS and experience the following error during chaincode installation:
+
+Error: chaincode install failed with status: 500 - failed to invoke backing implementation of 'InstallChaincode': could not build chaincode: docker build failed: docker image inspection failed: Get "http://unix.sock/images/dev-peer0.org1.example.com-basic_1.0-4ec191e793b27e953ff2ede5a8bcc63152cecb1e4c3f301a26e22692c61967ad-42f57faac8360472e47cbbbf3940e81bba83439702d085878d148089a1b213ca/json": dial unix /host/var/run/docker.sock: connect: no such file or directory
+Chaincode installation on peer0.org1 has failed
+Deploying chaincode failed
+This problem is caused by a newer version of Docker Desktop for macOS. To resolve this issue, in the Docker Desktop preferences, uncheck the box Use gRPC FUSE for file sharing to use the legacy osxfs file sharing instead and click Apply & Restart.
+
+If you see errors on your create, approve, commit, invoke or query commands, make sure you have properly updated the channel name and chaincode name. There are placeholder values in the supplied sample commands.
+
+If you see the error below:
+
+Error: Error endorsing chaincode: rpc error: code = 2 desc = Error installing chaincode code mycc:1.0(chaincode /var/hyperledger/production/chaincodes/mycc.1.0 exits)
+You likely have chaincode images (e.g. dev-peer1.org2.example.com-asset-transfer-1.0 or dev-peer0.org1.example.com-asset-transfer-1.0) from prior runs. Remove them and try again.
+
+docker rmi -f $(docker images | grep dev-peer[0-9] | awk '{print $3}')
+If you see the below error:
+
+[configtx/tool/localconfig] Load -> CRIT 002 Error reading configuration: Unsupported Config Type ""
+panic: Error reading configuration: Unsupported Config Type ""
+Then you did not set the FABRIC_CFG_PATH environment variable properly. The configtxgen tool needs this variable in order to locate the configtx.yaml. Go back and execute an export FABRIC_CFG_PATH=$PWD/configtx/configtx.yaml, then recreate your channel artifacts.
+
+If you see an error stating that you still have “active endpoints”, then prune your Docker networks. This will wipe your previous networks and start you with a fresh environment:
+
+docker network prune
+You will see the following message:
+
+WARNING! This will remove all networks not used by at least one container.
+Are you sure you want to continue? [y/N]
+Select y.
+
+If you try to create a channel with the command ./network.sh createChannel, and it fails with the following error:
+
+[comm.tls] ClientHandshake -> ERRO 003 Client TLS handshake failed after 1.908956ms with error: EOF remoteaddress=127.0.0.1:7051
+Error: error getting endorser client for channel: endorser client failed to connect to localhost:7051: failed to create new connection: context deadline exceeded
+After 5 attempts, peer0.org1 has failed to join channel 'mychannel'
+You need to uninstall Docker Desktop and reinstall the recommended version 2.5.0.1. Then, reclone the fabric-samples repository before reattempting the commands.
+
+If you see an error similar to the following:
+
+/bin/bash: ./scripts/createChannel.sh: /bin/bash^M: bad interpreter: No such file or directory
+Ensure that the file in question (createChannel.sh in this example) is encoded in the Unix format. This was most likely caused by not setting core.autocrlf to false in your Git configuration (see Windows). There are several ways of fixing this. If you have access to the vim editor for instance, open the file:
+
+vim ./fabric-samples/test-network/scripts/createChannel.sh
+Then change its format by executing the following vim command:
+
+:set ff=unix
+If you continue to see errors, share your logs on one of the Fabric Discord channels or on StackOverflow.
+
+
+Deploying a smart contract to a channel¶
+End users interact with the blockchain ledger by invoking smart contracts. In Hyperledger Fabric, smart contracts are deployed in packages referred to as chaincode. Organizations that want to validate transactions or query the ledger need to install a chaincode on their peers. After a chaincode has been installed on the peers joined to a channel, channel members can deploy the chaincode to the channel and use the smart contracts in the chaincode to create or update assets on the channel ledger.
+
+A chaincode is deployed to a channel using a process known as the Fabric chaincode lifecycle. The Fabric chaincode lifecycle allows multiple organizations to agree how a chaincode will be operated before it can be used to create transactions. For example, while an endorsement policy specifies which organizations need to execute a chaincode to validate a transaction, channel members need to use the Fabric chaincode lifecycle to agree on the chaincode endorsement policy. For a more in-depth overview about how to deploy and manage a chaincode on a channel, see Fabric chaincode lifecycle.
+
+You can use this tutorial to learn how to use the peer lifecycle chaincode commands to deploy a chaincode to a channel of the Fabric test network. Once you have an understanding of the commands, you can use the steps in this tutorial to deploy your own chaincode to the test network, or to deploy chaincode to a production network. In this tutorial, you will deploy the asset-transfer (basic) chaincode that is used by the Running a Fabric Application tutorial.
+
+Note: These instructions use the Fabric chaincode lifecycle introduced in the v2.0 release. If you would like to use the previous lifecycle to install and instantiate a chaincode, visit the v1.4 version of the Fabric documentation.
+
+Start the network¶
+We will start by deploying an instance of the Fabric test network. Before you begin, make sure that you have installed the necessary software by following the instructions on getting_started. Use the following command to navigate to the test network directory within your local clone of the fabric-samples repository:
+
+cd fabric-samples/test-network
+For the sake of this tutorial, we want to operate from a known initial state. The following command will kill any active or stale docker containers and remove previously generated artifacts.
+
+./network.sh down
+You can then use the following command to start the test network:
+
+./network.sh up createChannel
+The createChannel command creates a channel named mychannel with two channel members, Org1 and Org2. The command also joins a peer that belongs to each organization to the channel. If the network and the channel are created successfully, you can see the following message printed in the logs:
+
+========= Channel successfully joined ===========
+We can now use the Peer CLI to deploy the asset-transfer (basic) chaincode to the channel using the following steps:
+
+Step one: Package the smart contract
+
+Step two: Install the chaincode package
+
+Step three: Approve a chaincode definition
+
+Step four: Committing the chaincode definition to the channel
+
+Setup Logspout (optional)¶
+This step is not required but is extremely useful for troubleshooting chaincode. To monitor the logs of the smart contract, an administrator can view the aggregated output from a set of Docker containers using the logspout tool. The tool collects the output streams from different Docker containers into one place, making it easy to see what’s happening from a single window. This can help administrators debug problems when they install smart contracts or developers when they invoke smart contracts. Because some containers are created purely for the purposes of starting a smart contract and only exist for a short time, it is helpful to collect all of the logs from your network.
+
+A script to install and configure Logspout, monitordocker.sh, is already included in the test-network directory in the Fabric samples. The Logspout tool will continuously stream logs to your terminal, so you will need to use a new terminal window. Open a new terminal and navigate to the test-network directory.
+
+cd fabric-samples/test-network
+You can then start Logspout by running the following command:
+
+./monitordocker.sh fabric_test
+You should see output similar to the following:
+
+Starting monitoring on all containers on the network net_basic
+Unable to find image 'gliderlabs/logspout:latest' locally
+latest: Pulling from gliderlabs/logspout
+4fe2ade4980c: Pull complete
+decca452f519: Pull complete
+ad60f6b6c009: Pull complete
+Digest: sha256:374e06b17b004bddc5445525796b5f7adb8234d64c5c5d663095fccafb6e4c26
+Status: Downloaded newer image for gliderlabs/logspout:latest
+1f99d130f15cf01706eda3e1f040496ec885036d485cb6bcc0da4a567ad84361
+
+You will not see any logs at first, but this will change when we deploy our chaincode. It can be helpful to make this terminal window wide and the font small.
+
+Package the smart contract¶
+We need to package the chaincode before it can be installed on our peers. The steps are different if you want to install a smart contract written in Go, JavaScript, or Typescript.
+
+Go¶
+Before we package the chaincode, we need to install the chaincode dependencies. Navigate to the folder that contains the Go version of the asset-transfer (basic) chaincode.
+
+cd fabric-samples/asset-transfer-basic/chaincode-go
+The sample uses a Go module to install the chaincode dependencies. The dependencies are listed in a go.mod file in the asset-transfer-basic/chaincode-go directory. You should take a moment to examine this file.
+
+$ cat go.mod
+module github.com/hyperledger/fabric-samples/asset-transfer-basic/chaincode-go
+
+go 1.14
+
+require (
+        github.com/golang/protobuf v1.3.2
+        github.com/hyperledger/fabric-chaincode-go v0.0.0-20200424173110-d7076418f212
+        github.com/hyperledger/fabric-contract-api-go v1.1.0
+        github.com/hyperledger/fabric-protos-go v0.0.0-20200424173316-dd554ba3746e
+        github.com/stretchr/testify v1.5.1
+)
+The go.mod file imports the Fabric contract API into the smart contract package. You can open asset-transfer-basic/chaincode-go/chaincode/smartcontract.go in a text editor to see how the contract API is used to define the SmartContract type at the beginning of the smart contract:
+
+// SmartContract provides functions for managing an Asset
+type SmartContract struct {
+	contractapi.Contract
+}
+The SmartContract type is then used to create the transaction context for the functions defined within the smart contract that read and write data to the blockchain ledger.
+
+// CreateAsset issues a new asset to the world state with given details.
+func (s *SmartContract) CreateAsset(ctx contractapi.TransactionContextInterface, id string, color string, size int, owner string, appraisedValue int) error {
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return fmt.Errorf("the asset %s already exists", id)
+	}
+
+	asset := Asset{
+		ID:             id,
+		Color:          color,
+		Size:           size,
+		Owner:          owner,
+		AppraisedValue: appraisedValue,
+	}
+	assetJSON, err := json.Marshal(asset)
+	if err != nil {
+		return err
+	}
+
+	return ctx.GetStub().PutState(id, assetJSON)
+}
+
+You can learn more about the Go contract API by visiting the API documentation and the smart contract processing topic.
+
+To install the smart contract dependencies, run the following command from the asset-transfer-basic/chaincode-go directory.
+
+GO111MODULE=on go mod vendor
+If the command is successful, the go packages will be installed inside a vendor folder.
+
+Now that we that have our dependencies, we can create the chaincode package. Navigate back to our working directory in the test-network folder so that we can package the chaincode together with our other network artifacts.
+
+cd ../../test-network
+You can use the peer CLI to create a chaincode package in the required format. The peer binaries are located in the bin folder of the fabric-samples repository. Use the following command to add those binaries to your CLI Path:
+
+export PATH=${PWD}/../bin:$PATH
+You also need to set the FABRIC_CFG_PATH to point to the core.yaml file in the fabric-samples repository:
+
+export FABRIC_CFG_PATH=$PWD/../config/
+To confirm that you are able to use the peer CLI, check the version of the binaries. The binaries need to be version 2.0.0 or later to run this tutorial.
+
+peer version
+You can now create the chaincode package using the peer lifecycle chaincode package command:
+
+peer lifecycle chaincode package basic.tar.gz --path ../asset-transfer-basic/chaincode-go/ --lang golang --label basic_1.0
+This command will create a package named basic.tar.gz in your current directory. The --lang flag is used to specify the chaincode language and the --path flag provides the location of your smart contract code. The path must be a fully qualified path or a path relative to your present working directory. The --label flag is used to specify a chaincode label that will identify your chaincode after it is installed. It is recommended that your label include the chaincode name and version.
+
+Now that we created the chaincode package, we can install the chaincode on the peers of the test network.
+
+JavaScript¶
+Before we package the chaincode, we need to install the chaincode dependencies. Navigate to the folder that contains the JavaScript version of the asset-transfer (basic) chaincode.
+
+cd fabric-samples/asset-transfer-basic/chaincode-javascript
+The dependencies are listed in the package.json file in the asset-transfer-basic/chaincode-javascript directory. You should take a moment to examine this file. You can find the dependencies section displayed below:
+
+"dependencies": {
+		"fabric-contract-api": "^2.0.0",
+		"fabric-shim": "^2.0.0"
+The package.json file imports the Fabric contract class into the smart contract package. You can open lib/assetTransfer.js in a text editor to see the contract class imported into the smart contract and used to create the asset-transfer (basic) class.
+
+const { Contract } = require('fabric-contract-api');
+
+class AssetTransfer extends Contract {
+	...
+}
+
+The AssetTransfer class provides the transaction context for the functions defined within the smart contract that read and write data to the blockchain ledger.
+
+async CreateAsset(ctx, id, color, size, owner, appraisedValue) {
+        const asset = {
+            ID: id,
+            Color: color,
+            Size: size,
+            Owner: owner,
+            AppraisedValue: appraisedValue,
+        };
+
+        await ctx.stub.putState(id, Buffer.from(JSON.stringify(asset)));
+    }
+You can learn more about the JavaScript contract API by visiting the API documentation and the smart contract processing topic.
+
+To install the smart contract dependencies, run the following command from the asset-transfer-basic/chaincode-javascript directory.
+
+npm install
+If the command is successful, the JavaScript packages will be installed inside a node_modules folder.
+
+Now that we that have our dependencies, we can create the chaincode package. Navigate back to our working directory in the test-network folder so that we can package the chaincode together with our other network artifacts.
+
+cd ../../test-network
+You can use the peer CLI to create a chaincode package in the required format. The peer binaries are located in the bin folder of the fabric-samples repository. Use the following command to add those binaries to your CLI Path:
+
+export PATH=${PWD}/../bin:$PATH
+You also need to set the FABRIC_CFG_PATH to point to the core.yaml file in the fabric-samples repository:
+
+export FABRIC_CFG_PATH=$PWD/../config/
+To confirm that you are able to use the peer CLI, check the version of the binaries. The binaries need to be version 2.0.0 or later to run this tutorial.
+
+peer version
+You can now create the chaincode package using the peer lifecycle chaincode package command:
+
+peer lifecycle chaincode package basic.tar.gz --path ../asset-transfer-basic/chaincode-javascript/ --lang node --label basic_1.0
+This command will create a package named basic.tar.gz in your current directory. The --lang flag is used to specify the chaincode language and the --path flag provides the location of your smart contract code. The --label flag is used to specify a chaincode label that will identify your chaincode after it is installed. It is recommended that your label include the chaincode name and version.
+
+Now that we created the chaincode package, we can install the chaincode on the peers of the test network.
+
+Typescript¶
+Before we package the chaincode, we need to install the chaincode dependencies. Navigate to the folder that contains the TypeScript version of the asset-transfer (basic) chaincode.
+
+cd fabric-samples/asset-transfer-basic/chaincode-typescript
+The dependencies are listed in the package.json file in the asset-transfer-basic/chaincode-typescript directory. You should take a moment to examine this file. You can find the dependencies section displayed below:
+
+"dependencies": {
+		"fabric-contract-api": "^2.0.0",
+		"fabric-shim": "^2.0.0"
+The package.json file imports the Fabric contract class into the smart contract package. You can open src/assetTransfer.ts in a text editor to see the contract class imported into the smart contract and used to create the asset-transfer (basic) class. Also notice that the Asset class is imported from the type definition file asset.ts.
+
+import { Context, Contract } from 'fabric-contract-api';
+import { Asset } from './asset';
+
+export class AssetTransfer extends Contract {
+	...
+}
+
+The AssetTransfer class provides the transaction context for the functions defined within the smart contract that read and write data to the blockchain ledger.
+
+ // CreateAsset issues a new asset to the world state with given details.
+    public async CreateAsset(ctx: Context, id: string, color: string, size: number, owner: string, appraisedValue: number) {
+        const asset = {
+            ID: id,
+            Color: color,
+            Size: size,
+            Owner: owner,
+            AppraisedValue: appraisedValue,
+        };
+
+        await ctx.stub.putState(id, Buffer.from(JSON.stringify(asset)));
+    }
+
+You can learn more about the JavaScript contract API by visiting the API documentation and the smart contract processing topic.
+
+To install the smart contract dependencies, run the following command from the asset-transfer-basic/chaincode-typescript directory.
+
+npm install
+If the command is successful, the JavaScript packages will be installed inside a node_modules folder.
+
+Now that we that have our dependencies, we can create the chaincode package. Navigate back to our working directory in the test-network folder so that we can package the chaincode together with our other network artifacts.
+
+cd ../../test-network
+You can use the peer CLI to create a chaincode package in the required format. The peer binaries are located in the bin folder of the fabric-samples repository. Use the following command to add those binaries to your CLI Path:
+
+export PATH=${PWD}/../bin:$PATH
+You also need to set the FABRIC_CFG_PATH to point to the core.yaml file in the fabric-samples repository:
+
+export FABRIC_CFG_PATH=$PWD/../config/
+To confirm that you are able to use the peer CLI, check the version of the binaries. The binaries need to be version 2.0.0 or later to run this tutorial.
+
+peer version
+You can now create the chaincode package using the peer lifecycle chaincode package command:
+
+peer lifecycle chaincode package basic.tar.gz --path ../asset-transfer-basic/chaincode-typescript/ --lang node --label basic_1.0
+This command will create a package named basic.tar.gz in your current directory. The --lang flag is used to specify the chaincode language and the --path flag provides the location of your smart contract code. The --label flag is used to specify a chaincode label that will identify your chaincode after it is installed. It is recommended that your label include the chaincode name and version.
+
+Now that we created the chaincode package, we can install the chaincode on the peers of the test network.
+
+Install the chaincode package¶
+After we package the asset-transfer (basic) smart contract, we can install the chaincode on our peers. The chaincode needs to be installed on every peer that will endorse a transaction. Because we are going to set the endorsement policy to require endorsements from both Org1 and Org2, we need to install the chaincode on the peers operated by both organizations:
+
+peer0.org1.example.com
+
+peer0.org2.example.com
+
+Let’s install the chaincode on the Org1 peer first. Set the following environment variables to operate the peer CLI as the Org1 admin user. The CORE_PEER_ADDRESS will be set to point to the Org1 peer, peer0.org1.example.com.
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+Issue the peer lifecycle chaincode install command to install the chaincode on the peer:
+
+peer lifecycle chaincode install basic.tar.gz
+If the command is successful, the peer will generate and return the package identifier. This package ID will be used to approve the chaincode in the next step. You should see output similar to the following:
+
+2020-07-16 10:09:57.534 CDT [cli.lifecycle.chaincode] submitInstallProposal -> INFO 001 Installed remotely: response:<status:200 payload:"\nJbasic_1.0:e2db7f693d4aa6156e652741d5606e9c5f0de9ebb88c5721cb8248c3aead8123\022\tbasic_1.0" >
+2020-07-16 10:09:57.534 CDT [cli.lifecycle.chaincode] submitInstallProposal -> INFO 002 Chaincode code package identifier: basic_1.0:e2db7f693d4aa6156e652741d5606e9c5f0de9ebb88c5721cb8248c3aead8123
+We can now install the chaincode on the Org2 peer. Set the following environment variables to operate as the Org2 admin and target the Org2 peer, peer0.org2.example.com.
+
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+Issue the following command to install the chaincode:
+
+peer lifecycle chaincode install basic.tar.gz
+The chaincode is built by the peer when the chaincode is installed. The install command will return any build errors from the chaincode if there is a problem with the smart contract code.
+
+Approve a chaincode definition¶
+After you install the chaincode package, you need to approve a chaincode definition for your organization. The definition includes the important parameters of chaincode governance such as the name, version, and the chaincode endorsement policy.
+
+The set of channel members who need to approve a chaincode before it can be deployed is governed by the /Channel/Application/LifecycleEndorsement policy. By default, this policy requires that a majority of channel members need to approve a chaincode before it can be used on a channel. Because we have only two organizations on the channel, and a majority of 2 is 2, we need approve a chaincode definition of asset-transfer (basic) as Org1 and Org2.
+
+If an organization has installed the chaincode on their peer, they need to include the packageID in the chaincode definition approved by their organization. The package ID is used to associate the chaincode installed on a peer with an approved chaincode definition, and allows an organization to use the chaincode to endorse transactions. You can find the package ID of a chaincode by using the peer lifecycle chaincode queryinstalled command to query your peer.
+
+peer lifecycle chaincode queryinstalled
+The package ID is the combination of the chaincode label and a hash of the chaincode binaries. Every peer will generate the same package ID. You should see output similar to the following:
+
+Installed chaincodes on peer:
+Package ID: basic_1.0:69de748301770f6ef64b42aa6bb6cb291df20aa39542c3ef94008615704007f3, Label: basic_1.0
+We are going to use the package ID when we approve the chaincode, so let’s go ahead and save it as an environment variable. Paste the package ID returned by peer lifecycle chaincode queryinstalled into the command below. Note: The package ID will not be the same for all users, so you need to complete this step using the package ID returned from your command window in the previous step.
+
+export CC_PACKAGE_ID=basic_1.0:69de748301770f6ef64b42aa6bb6cb291df20aa39542c3ef94008615704007f3
+Because the environment variables have been set to operate the peer CLI as the Org2 admin, we can approve the chaincode definition of asset-transfer (basic) as Org2. Chaincode is approved at the organization level, so the command only needs to target one peer. The approval is distributed to the other peers within the organization using gossip. Approve the chaincode definition using the peer lifecycle chaincode approveformyorg command:
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+The command above uses the --package-id flag to include the package identifier in the chaincode definition. The --sequence parameter is an integer that keeps track of the number of times a chaincode has been defined or updated. Because the chaincode is being deployed to the channel for the first time, the sequence number is 1. When the asset-transfer (basic) chaincode is upgraded, the sequence number will be incremented to 2. If you are using the low level APIs provided by the Fabric Chaincode Shim API, you could pass the --init-required flag to the command above to request the execution of the Init function to initialize the chaincode. The first invoke of the chaincode would need to target the Init function and include the --isInit flag before you could use the other functions in the chaincode to interact with the ledger.
+
+We could have provided a --signature-policy or --channel-config-policy argument to the approveformyorg command to specify a chaincode endorsement policy. The endorsement policy specifies how many peers belonging to different channel members need to validate a transaction against a given chaincode. Because we did not set a policy, the definition of asset-transfer (basic) will use the default endorsement policy, which requires that a transaction be endorsed by a majority of channel members present when the transaction is submitted. This implies that if new organizations are added or removed from the channel, the endorsement policy is updated automatically to require more or fewer endorsements. In this tutorial, the default policy will require a majority of 2 out of 2 and transactions will need to be endorsed by a peer from Org1 and Org2. If you want to specify a custom endorsement policy, you can use the Endorsement Policies operations guide to learn about the policy syntax.
+
+You need to approve a chaincode definition with an identity that has an admin role. As a result, the CORE_PEER_MSPCONFIGPATH variable needs to point to the MSP folder that contains an admin identity. You cannot approve a chaincode definition with a client user. The approval needs to be submitted to the ordering service, which will validate the admin signature and then distribute the approval to your peers.
+
+We still need to approve the chaincode definition as Org1. Set the following environment variables to operate as the Org1 admin:
+
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_ADDRESS=localhost:7051
+You can now approve the chaincode definition as Org1.
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 1.0 --package-id $CC_PACKAGE_ID --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+We now have the majority we need to deploy the asset-transfer (basic) the chaincode to the channel. While only a majority of organizations need to approve a chaincode definition (with the default policies), all organizations need to approve a chaincode definition to start the chaincode on their peers. If you commit the definition before a channel member has approved the chaincode, the organization will not be able to endorse transactions. As a result, it is recommended that all channel members approve a chaincode before committing the chaincode definition.
+
+Committing the chaincode definition to the channel¶
+After a sufficient number of organizations have approved a chaincode definition, one organization can commit the chaincode definition to the channel. If a majority of channel members have approved the definition, the commit transaction will be successful and the parameters agreed to in the chaincode definition will be implemented on the channel.
+
+You can use the peer lifecycle chaincode checkcommitreadiness command to check whether channel members have approved the same chaincode definition. The flags used for the checkcommitreadiness command are identical to the flags used to approve a chaincode for your organization. However, you do not need to include the --package-id flag.
+
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name basic --version 1.0 --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
+The command will produce a JSON map that displays if a channel member has approved the parameters that were specified in the checkcommitreadiness command:
+
+{
+	"Approvals": {
+		"Org1MSP": true,
+		"Org2MSP": true
+	}
+}
+Since both organizations that are members of the channel have approved the same parameters, the chaincode definition is ready to be committed to the channel. You can use the peer lifecycle chaincode commit command to commit the chaincode definition to the channel. The commit command also needs to be submitted by an organization admin.
+
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 1.0 --sequence 1 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+The transaction above uses the --peerAddresses flag to target peer0.org1.example.com from Org1 and peer0.org2.example.com from Org2. The commit transaction is submitted to the peers joined to the channel to query the chaincode definition that was approved by the organization that operates the peer. The command needs to target the peers from a sufficient number of organizations to satisfy the policy for deploying a chaincode. Because the approval is distributed within each organization, you can target any peer that belongs to a channel member.
+
+The chaincode definition endorsements by channel members are submitted to the ordering service to be added to a block and distributed to the channel. The peers on the channel then validate whether a sufficient number of organizations have approved the chaincode definition. The peer lifecycle chaincode commit command will wait for the validations from the peer before returning a response.
+
+You can use the peer lifecycle chaincode querycommitted command to confirm that the chaincode definition has been committed to the channel.
+
+peer lifecycle chaincode querycommitted --channelID mychannel --name basic --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+If the chaincode was successful committed to the channel, the querycommitted command will return the sequence and version of the chaincode definition:
+
+Committed chaincode definition for chaincode 'basic' on channel 'mychannel':
+Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true, Org2MSP: true]
+Invoking the chaincode¶
+After the chaincode definition has been committed to a channel, the chaincode will start on the peers joined to the channel where the chaincode was installed. The asset-transfer (basic) chaincode is now ready to be invoked by client applications. Use the following command to create an initial set of assets on the ledger. Note that the invoke command needs to target a sufficient number of peers to meet the chaincode endorsement policy. (Note the CLI does not access the Fabric Gateway peer, so each endorsing peer must be specified.)
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"InitLedger","Args":[]}'
+If the command is successful, you should see a response similar to the following:
+
+2020-02-12 18:22:20.576 EST [chaincodeCmd] chaincodeInvokeOrQuery -> INFO 001 Chaincode invoke successful. result: status:200
+We can use a query function to read the set of cars that were created by the chaincode:
+
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+The response to the query should be the following list of assets:
+
+[{"Key":"asset1","Record":{"ID":"asset1","color":"blue","size":5,"owner":"Tomoko","appraisedValue":300}},
+{"Key":"asset2","Record":{"ID":"asset2","color":"red","size":5,"owner":"Brad","appraisedValue":400}},
+{"Key":"asset3","Record":{"ID":"asset3","color":"green","size":10,"owner":"Jin Soo","appraisedValue":500}},
+{"Key":"asset4","Record":{"ID":"asset4","color":"yellow","size":10,"owner":"Max","appraisedValue":600}},
+{"Key":"asset5","Record":{"ID":"asset5","color":"black","size":15,"owner":"Adriana","appraisedValue":700}},
+{"Key":"asset6","Record":{"ID":"asset6","color":"white","size":15,"owner":"Michel","appraisedValue":800}}]
+Upgrading a smart contract¶
+You can use the same Fabric chaincode lifecycle process to upgrade a chaincode that has already been deployed to a channel. Channel members can upgrade a chaincode by installing a new chaincode package and then approving a chaincode definition with the new package ID, a new chaincode version, and with the sequence number incremented by one. The new chaincode can be used after the chaincode definition is committed to the channel. This process allows channel members to coordinate on when a chaincode is upgraded, and ensure that a sufficient number of channel members are ready to use the new chaincode before it is deployed to the channel.
+
+Channel members can also use the upgrade process to change the chaincode endorsement policy. By approving a chaincode definition with a new endorsement policy and committing the chaincode definition to the channel, channel members can change the endorsement policy governing a chaincode without installing a new chaincode package.
+
+To provide a scenario for upgrading the asset-transfer (basic) chaincode that we just deployed, let’s assume that Org1 and Org2 would like to install a version of the chaincode that is written in another language. They will use the Fabric chaincode lifecycle to update the chaincode version and ensure that both organizations have installed the new chaincode before it becomes active on the channel.
+
+We are going to assume that Org1 and Org2 initially installed the GO version of the asset-transfer (basic) chaincode, but would be more comfortable working with a chaincode written in JavaScript. The first step is to package the JavaScript version of the asset-transfer (basic) chaincode. If you used the JavaScript instructions to package your chaincode when you went through the tutorial, you can install new chaincode binaries by following the steps for packaging a chaincode written in Go or TypeScript.
+
+Issue the following commands from the test-network directory to install the chaincode dependencies.
+
+cd ../asset-transfer-basic/chaincode-javascript
+npm install
+cd ../../test-network
+You can then issue the following commands to package the JavaScript chaincode from the test-network directory. We will set the environment variables needed to use the peer CLI again in case you closed your terminal.
+
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=$PWD/../config/
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+peer lifecycle chaincode package basic_2.tar.gz --path ../asset-transfer-basic/chaincode-javascript/ --lang node --label basic_2.0
+Run the following commands to operate the peer CLI as the Org1 admin:
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="Org1MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+We can now use the following command to install the new chaincode package on the Org1 peer.
+
+peer lifecycle chaincode install basic_2.tar.gz
+The new chaincode package will create a new package ID. We can find the new package ID by querying our peer.
+
+peer lifecycle chaincode queryinstalled
+The queryinstalled command will return a list of the chaincode that have been installed on your peer similar to this output.
+
+Installed chaincodes on peer:
+Package ID: basic_1.0:69de748301770f6ef64b42aa6bb6cb291df20aa39542c3ef94008615704007f3, Label: basic_1.0
+Package ID: basic_2.0:1d559f9fb3dd879601ee17047658c7e0c84eab732dca7c841102f20e42a9e7d4, Label: basic_2.0
+You can use the package label to find the package ID of the new chaincode and save it as a new environment variable. This output is for example only – your package ID will be different, so DO NOT COPY AND PASTE!
+
+export NEW_CC_PACKAGE_ID=basic_2.0:1d559f9fb3dd879601ee17047658c7e0c84eab732dca7c841102f20e42a9e7d4
+Org1 can now approve a new chaincode definition:
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 2.0 --package-id $NEW_CC_PACKAGE_ID --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+The new chaincode definition uses the package ID of the JavaScript chaincode package and updates the chaincode version. Because the sequence parameter is used by the Fabric chaincode lifecycle to keep track of chaincode upgrades, Org1 also needs to increment the sequence number from 1 to 2. You can use the peer lifecycle chaincode querycommitted command to find the sequence of the chaincode that was last committed to the channel.
+
+We now need to install the chaincode package and approve the chaincode definition as Org2 in order to upgrade the chaincode. Run the following commands to operate the peer CLI as the Org2 admin:
+
+export CORE_PEER_LOCALMSPID="Org2MSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+export CORE_PEER_ADDRESS=localhost:9051
+We can now use the following command to install the new chaincode package on the Org2 peer.
+
+peer lifecycle chaincode install basic_2.tar.gz
+You can now approve the new chaincode definition for Org2.
+
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 2.0 --package-id $NEW_CC_PACKAGE_ID --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+Use the peer lifecycle chaincode checkcommitreadiness command to check if the chaincode definition with sequence 2 is ready to be committed to the channel:
+
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name basic --version 2.0 --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --output json
+The chaincode is ready to be upgraded if the command returns the following JSON:
+
+{
+	"Approvals": {
+		"Org1MSP": true,
+		"Org2MSP": true
+	}
+}
+The chaincode will be upgraded on the channel after the new chaincode definition is committed. Until then, the previous chaincode will continue to run on the peers of both organizations. Org2 can use the following command to upgrade the chaincode:
+
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name basic --version 2.0 --sequence 2 --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+A successful commit transaction will start the new chaincode right away. If the chaincode definition changed the endorsement policy, the new policy would be put in effect.
+
+You can use the docker ps command to verify that the new chaincode has started on your peers:
+
+$ docker ps
+CONTAINER ID        IMAGE                                                                                                                                                                    COMMAND                  CREATED             STATUS              PORTS                              NAMES
+7bf2f1bf792b        dev-peer0.org1.example.com-basic_2.0-572cafd6a972a9b6aa3fa4f6a944efb6648d363c0ba4602f56bc8b3f9e66f46c-69c9e3e44ed18cafd1e58de37a70e2ec54cd49c7da0cd461fbd5e333de32879b   "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes                                           dev-peer0.org1.example.com-basic_2.0-572cafd6a972a9b6aa3fa4f6a944efb6648d363c0ba4602f56bc8b3f9e66f46c
+985e0967c27a        dev-peer0.org2.example.com-basic_2.0-572cafd6a972a9b6aa3fa4f6a944efb6648d363c0ba4602f56bc8b3f9e66f46c-158e9c6a4cb51dea043461fc4d3580e7df4c74a52b41e69a25705ce85405d760   "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes                                           dev-peer0.org2.example.com-basic_2.0-572cafd6a972a9b6aa3fa4f6a944efb6648d363c0ba4602f56bc8b3f9e66f46c
+31fdd19c3be7        hyperledger/fabric-peer:latest                                                                                                                                           "peer node start"        About an hour ago   Up About an hour    0.0.0.0:7051->7051/tcp             peer0.org1.example.com
+1b17ff866fe0        hyperledger/fabric-peer:latest                                                                                                                                           "peer node start"        About an hour ago   Up About an hour    7051/tcp, 0.0.0.0:9051->9051/tcp   peer0.org2.example.com
+4cf170c7ae9b        hyperledger/fabric-orderer:latest
+If you used the --init-required flag, you need to invoke the Init function before you can use the upgraded chaincode. Because we did not request the execution of Init, we can test our new JavaScript chaincode by creating a new car:
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n basic --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CreateAsset","Args":["asset8","blue","16","Kelley","750"]}'
+You can query all the cars on the ledger again to see the new car:
+
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+You should see the following result from the JavaScript chaincode:
+
+[{"Key":"asset1","Record":{"ID":"asset1","color":"blue","size":5,"owner":"Tomoko","appraisedValue":300}},
+{"Key":"asset2","Record":{"ID":"asset2","color":"red","size":5,"owner":"Brad","appraisedValue":400}},
+{"Key":"asset3","Record":{"ID":"asset3","color":"green","size":10,"owner":"Jin Soo","appraisedValue":500}},
+{"Key":"asset4","Record":{"ID":"asset4","color":"yellow","size":10,"owner":"Max","appraisedValue":600}},
+{"Key":"asset5","Record":{"ID":"asset5","color":"black","size":15,"owner":"Adriana","appraisedValue":700}},
+{"Key":"asset6","Record":{"ID":"asset6","color":"white","size":15,"owner":"Michel","appraisedValue":800}},
+"Key":"asset8","Record":{"ID":"asset8","color":"blue","size":16,"owner":"Kelley","appraisedValue":750}}]
+Clean up¶
+When you are finished using the chaincode, you can also use the following commands to remove the Logspout tool.
+
+docker stop logspout
+docker rm logspout
+You can then bring down the test network by issuing the following command from the test-network directory:
+
+./network.sh down
+Next steps¶
+After you write your smart contract and deploy it to a channel, you can use the APIs provided by the Fabric SDKs to invoke the smart contracts from a client application. This allows end users to interact with the assets on the blockchain ledger. To get started with the Fabric SDKs, see the Running a Fabric Application tutorial.
+
+troubleshooting¶
+Chaincode not agreed to by this org¶
+Problem: When I try to commit a new chaincode definition to the channel, the peer lifecycle chaincode commit command fails with the following error:
+
+Error: failed to create signed transaction: proposal response was not successful, error code 500, msg failed to invoke backing implementation of 'CommitChaincodeDefinition': chaincode definition not agreed to by this org (Org1MSP)
+Solution: You can try to resolve this error by using the peer lifecycle chaincode checkcommitreadiness command to check which channel members have approved the chaincode definition that you are trying to commit. If any organization used a different value for any parameter of the chaincode definition, the commit transaction will fail. The peer lifecycle chaincode checkcommitreadiness will reveal which organizations did not approve the chaincode definition you are trying to commit:
+
+{
+	"approvals": {
+		"Org1MSP": false,
+		"Org2MSP": true
+	}
+}
+Invoke failure¶
+Problem: The peer lifecycle chaincode commit transaction is successful, but when I try to invoke the chaincode for the first time, it fails with the following error:
+
+Error: endorsement failure during invoke. response: status:500 message:"make sure the chaincode asset-transfer (basic) has been successfully defined on channel mychannel and try again: chaincode definition for 'asset-transfer (basic)' exists, but chaincode is not installed"
+Solution: You may not have set the correct --package-id when you approved your chaincode definition. As a result, the chaincode definition that was committed to the channel was not associated with the chaincode package you installed and the chaincode was not started on your peers. If you are running a docker based network, you can use the docker ps command to check if your chaincode is running:
+
+docker ps
+CONTAINER ID        IMAGE                               COMMAND             CREATED             STATUS              PORTS                              NAMES
+7fe1ae0a69fa        hyperledger/fabric-orderer:latest   "orderer"           5 minutes ago       Up 4 minutes        0.0.0.0:7050->7050/tcp             orderer.example.com
+2b9c684bd07e        hyperledger/fabric-peer:latest      "peer node start"   5 minutes ago       Up 4 minutes        0.0.0.0:7051->7051/tcp             peer0.org1.example.com
+39a3e41b2573        hyperledger/fabric-peer:latest      "peer node start"   5 minutes ago       Up 4 minutes        7051/tcp, 0.0.0.0:9051->9051/tcp   peer0.org2.example.com
+If you do not see any chaincode containers listed, use the peer lifecycle chaincode approveformyorg command approve a chaincode definition with the correct package ID.
+
+Endorsement policy failure¶
+Problem: When I try to commit the chaincode definition to the channel, the transaction fails with the following error:
+
+2020-04-07 20:08:23.306 EDT [chaincodeCmd] ClientWait -> INFO 001 txid [5f569e50ae58efa6261c4ad93180d49ac85ec29a07b58f576405b826a8213aeb] committed with status (ENDORSEMENT_POLICY_FAILURE) at localhost:7051
+Error: transaction invalidated with status (ENDORSEMENT_POLICY_FAILURE)
+Solution: This error is a result of the commit transaction not gathering enough endorsements to meet the Lifecycle endorsement policy. This problem could be a result of your transaction not targeting a sufficient number of peers to meet the policy. This could also be the result of some of the peer organizations not including the Endorsement: signature policy referenced by the default /Channel/Application/Endorsement policy in their configtx.yaml file:
+
+Readers:
+		Type: Signature
+		Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
+Writers:
+		Type: Signature
+		Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+Admins:
+		Type: Signature
+		Rule: "OR('Org2MSP.admin')"
+Endorsement:
+		Type: Signature
+		Rule: "OR('Org2MSP.peer')"
+When you enable the Fabric chaincode lifecycle, you also need to use the new Fabric 2.0 channel policies in addition to upgrading your channel to the V2_0 capability. Your channel needs to include the new /Channel/Application/LifecycleEndorsement and /Channel/Application/Endorsement policies:
+
+Policies:
+		Readers:
+				Type: ImplicitMeta
+				Rule: "ANY Readers"
+		Writers:
+				Type: ImplicitMeta
+				Rule: "ANY Writers"
+		Admins:
+				Type: ImplicitMeta
+				Rule: "MAJORITY Admins"
+		LifecycleEndorsement:
+				Type: ImplicitMeta
+				Rule: "MAJORITY Endorsement"
+		Endorsement:
+				Type: ImplicitMeta
+				Rule: "MAJORITY Endorsement"
+If you do not include the new channel policies in the channel configuration, you will get the following error when you approve a chaincode definition for your organization:
+
+Error: proposal failed with status: 500 - failed to invoke backing implementation of 'ApproveChaincodeDefini
+
+Running a Fabric Application¶
+Note
+
+If you’re not yet familiar with the fundamental architecture of a Fabric blockchain network, you may want to visit the Key Concepts section prior to continuing.
+
+You should also be familiar with the Fabric Gateway service and how it relates to the application transaction flow, documented in the Fabric Gateway section.
+
+This tutorial provides an introduction to how Fabric applications interact with deployed blockchain networks. The tutorial uses sample programs built using the Fabric Gateway client API to invoke a smart contract, which queries and updates the ledger with the smart contract API – described in detail in Deploying a smart contract to a channel.
+
+About Asset Transfer
+
+The Asset Transfer (basic) sample demonstrates how to create, update, and query assets. It involves the following two components:
+
+1. Sample application: which makes calls to the blockchain network, invoking transactions implemented in the smart contract. The application is located in the following fabric-samples directory:
+
+asset-transfer-basic/application-gateway-(typescript, go, java)
+2. Smart contract: which implements the transactions that interact with the ledger. The smart contract is located in the following fabric-samples directory:
+
+asset-transfer-basic/chaincode-(typescript, go, java)
+This tutorial consists of two principle parts:
+
+1. Set up a blockchain network. Our application needs a blockchain network to interact with, so we will launch a basic network and deploy a smart contract for our application.
+
+_images/AppConceptsOverview.png
+2. Run the sample application to interact with the smart contract. Our application will use the assetTransfer smart contract to create, query, and update assets on the ledger. We will step through the code of the application and the transactions it invokes, including creating some initial assets, querying an asset, querying a range of assets, creating a new asset, and transferring an asset to a new owner.
+
+After completing this tutorial you should have a basic understanding of how Fabric applications and smart contracts work together to manage data on the distributed ledger of a blockchain network.
+
+Before you begin¶
+Before you can run the sample application, you need to install Fabric Samples in your environment. Follow the instructions on Getting Started - Install to install the required software.
+
+The sample application in this tutorial uses the Fabric Gateway client API. See the documentation for a up to date list of supported programming language runtimes and dependencies.
+
+Ensure you have a suitable version of your chosen runtime installed. For installation instructions, see:
+
+Node.js.
+
+Go.
+
+Java.
+
+Set up the blockchain network¶
+If you’ve already run through Using the Fabric test network tutorial and have a network up and running, this tutorial will bring down your running network before bringing up a new one, to ensure you start with an empty ledger.
+
+Launch the blockchain network¶
+Navigate to the test-network subdirectory within your local clone of the fabric-samples repository.
+
+cd fabric-samples/test-network
+If you already have a test network running, bring it down to ensure the environment is clean.
+
+./network.sh down
+Launch the Fabric test network using the network.sh shell script.
+
+./network.sh up createChannel -c mychannel -ca
+This command will deploy the Fabric test network with two peers, an ordering service, and three certificate authorities (Orderer, Org1, Org2). Instead of using the cryptogen tool, we bring up the test network using certificate authorities, hence the -ca flag. Additionally, the org admin user registration is bootstrapped when the certificate authority is started.
+
+Deploy the smart contract¶
+Next, let’s deploy the chaincode package containing the smart contract by calling the ./network.sh script with the chaincode name and language options.
+
+Note
+
+It is not necessary to use the same programming language for the smart contract and client application.
+
+TypeScriptGoJava
+./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-typescript/ -ccl typescript
+This script uses the chaincode lifecycle to package, install, query installed chaincode, approve chaincode for both Org1 and Org2, and finally commit the chaincode.
+
+If the chaincode package is successfully deployed, the end of the output in your terminal should look similar to below:
+
+Committed chaincode definition for chaincode 'basic' on channel 'mychannel':
+Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc, Approvals: [Org1MSP: true, Org2MSP: true]
+Query chaincode definition successful on peer0.org2 on channel 'mychannel'
+Chaincode initialization is not required
+Prepare the sample application¶
+Now, let’s prepare the sample Asset Transfer application that will be used to interact with the deployed smart contract.
+
+Open a new terminal, and navigate to the application directory. This directory contains a sample application developed using the Fabric Gateway client API.
+
+TypeScriptGoJava
+cd asset-transfer-basic/application-gateway-typescript
+Run the following command to install the dependencies and build the application. It may take some time to complete:
+
+npm install
+This process installs the application dependencies defined in the application’s package.json. The most important of which is the @hyperledger/fabric-gateway Node.js package; this provides the Fabric Gateway client API used to connect a Fabric Gateway and, using a specific client identity, to submit and evaluate transactions, and receive events.
+
+Once npm install completes, everything is in place to run the application.
+
+Let’s take a look at the sample TypeScript application files we will be using in this tutorial. Run the following command to list the files in this directory:
+
+ls
+You should see the following:
+
+dist
+node_modules
+package-lock.json
+package.json
+src
+tsconfig.json
+The src directory contains the client application source code. The JavaScript output generated from this source code during the install process is located in the dist directory, and can be ignored.
+
+Run the sample application¶
+When we started the Fabric test network earlier in this tutorial, several identities were created using the Certificate Authorities. These include a user identity for each of the organizations. The application will use the credentials of one of these user identities to transact with the blockchain network.
+
+Let’s run the application and then step through each of the interactions with the smart contract functions. From the asset-transfer-basic/application-gateway-(typescript, go, java) directory, run the following command:
+
+TypeScriptGoJava
+npm start
+First, establish a gRPC connection to the Gateway¶
+The client application establishes a gRPC connection to the Fabric Gateway service that it will use to transact with the blockchain network. To do this, it only requires the Fabric Gateway’s endpoint address and, if it is configured to use TLS, appropriate TLS certificates. In this sample, the gateway endpoint address is the address of a peer, which provides the Fabric Gateway service.
+
+Note
+
+There is significant overhead associated with establishing gRPC connections, so this connection should be retained by the application and used for all interactions with the Fabric Gateway.
+
+Warning
+
+In order to maintain security of any private data used in transactions, the application should connect to a Fabric Gateway belonging to the same organization as the client identity. If the client identity’s organization does not host any gateways, then a trusted gateway in another organization should be used.
+
+The application creates a gRPC connection using the TLS certificate of the signing certificate authority so that the authenticity of the gateway’s TLS certificate can be verified.
+
+For a TLS connection to be successfully established, the endpoint address used by the client must match the address in the gateway’s TLS certificate. Since the client accesses the gateway’s Docker container at a localhost address, an override gRPC option is specified to force this endpoint address to be interpreted as the gateway’s configured hostname.
+
+TypeScriptGoJava
+const peerEndpoint = 'localhost:7051';
+const peerHostOverride = 'peer0.org1.example.com';
+
+async function newGrpcConnection(): Promise<grpc.Client> {
+    const tlsRootCert = await fs.readFile(tlsCertPath);
+    const tlsCredentials = grpc.credentials.createSsl(tlsRootCert);
+    return new grpc.Client(peerEndpoint, tlsCredentials, {
+        'grpc.ssl_target_name_override': peerHostOverride,
+    });
+}
+Second, create a Gateway connection¶
+The application then creates a Gateway connection, which it uses to access any of the Networks (analogous to channels) accessible to the Fabric Gateway, and subsequently smart Contracts deployed to those networks. A Gateway connection has three requirements:
+
+gRPC connection to the Fabric Gateway.
+
+Client identity used to transact with the network.
+
+Signing implementation used to generate digital signatures for the client identity.
+
+Additionally, it is good practice to specify the hash algorithm that will be used to generate the message digests passed to the signing implementation, instead of relying on the default value. Different signing implementations may have different hash algorithm requirements.
+
+The sample application uses the Org1 user’s X.509 certificate as the client identity, and a signing implementation based on that user’s private key.
+
+TypeScriptGoJava
+const client = await newGrpcConnection();
+
+const gateway = connect({
+    client,
+    identity: await newIdentity(),
+    signer: await newSigner(),
+    hash: hash.sha256,
+});
+
+async function newIdentity(): Promise<Identity> {
+    const credentials = await fs.promises.readFile(certPath);
+    return { mspId: 'Org1MSP', credentials };
+}
+
+async function newSigner(): Promise<Signer> {
+    const privateKeyPem = await fs.promises.readFile(keyPath);
+    const privateKey = crypto.createPrivateKey(privateKeyPem);
+    return signers.newPrivateKeySigner(privateKey);
+}
+Third, access the smart contract to be invoked¶
+The sample application uses the Gateway connection to get a reference to the Network and then the default Contract within a chaincode deployed on that network.
+
+TypeScriptGoJava
+const network = gateway.getNetwork(channelName);
+const contract = network.getContract(chaincodeName);
+When a chaincode package includes multiple smart contracts, you can provide both the name of the chaincode and the name of a specific smart contract as arguments to the getContract() call. For example:
+
+TypeScriptGoJava
+const contract = network.getContract(chaincodeName, smartContractName);
+Fourth, populate the ledger with sample assets¶
+Immediately after initial deployment of the chaincode package, the ledger is empty. The application uses submitTransaction() to invoke the InitLedger transaction function, which populates the ledger with some sample assets. submitTransaction() will use the Fabric Gateway to:
+
+Endorse the transaction proposal.
+
+Submit the endorsed transaction to the ordering service.
+
+Wait for the transaction to be committed, updating ledger state.
+
+Sample application InitLedger call:
+
+TypeScriptGoJava
+await contract.submitTransaction('InitLedger');
+Fifth, invoke transaction functions to read and write assets¶
+Now the application is ready to execute business logic that queries, creates additional assets, and modifies assets on the ledger by invoking transactions functions on the smart contract.
+
+Query all assets¶
+The application uses evaluateTransaction() to query the ledger by performing a read-only transaction invocation. evaluateTransaction() will use the Fabric Gateway to invoke the transaction function and return its result. The transaction is not sent to the ordering service and no ledger update occurs.
+
+Below, the sample application is just getting all the assets created in the previous step when we populated the ledger.
+
+Sample application GetAllAssets call:
+
+TypeScriptGoJava
+const resultBytes = await contract.evaluateTransaction('GetAllAssets');
+
+const resultJson = utf8Decoder.decode(resultBytes);
+const result = JSON.parse(resultJson);
+console.log('*** Result:', result);
+Note
+
+Transaction function results are always returned as bytes since transaction functions can return any type of data. Often transaction functions return strings; or, as in the case above, a UTF-8 string of JSON data. The application is responsible for correctly interpreting the result bytes.
+
+The terminal output should look like this:
+
+*** Result: [
+  {
+    AppraisedValue: 300,
+    Color: 'blue',
+    ID: 'asset1',
+    Owner: 'Tomoko',
+    Size: 5,
+    docType: 'asset'
+  },
+  {
+    AppraisedValue: 400,
+    Color: 'red',
+    ID: 'asset2',
+    Owner: 'Brad',
+    Size: 5,
+    docType: 'asset'
+  },
+  {
+    AppraisedValue: 500,
+    Color: 'green',
+    ID: 'asset3',
+    Owner: 'Jin Soo',
+    Size: 10,
+    docType: 'asset'
+  },
+  {
+    AppraisedValue: 600,
+    Color: 'yellow',
+    ID: 'asset4',
+    Owner: 'Max',
+    Size: 10,
+    docType: 'asset'
+  },
+  {
+    AppraisedValue: 700,
+    Color: 'black',
+    ID: 'asset5',
+    Owner: 'Adriana',
+    Size: 15,
+    docType: 'asset'
+  },
+  {
+    AppraisedValue: 800,
+    Color: 'white',
+    ID: 'asset6',
+    Owner: 'Michel',
+    Size: 15,
+    docType: 'asset'
+  }
+]
+Create a new asset¶
+The sample application submits a transaction to create a new asset.
+
+Sample application CreateAsset call:
+
+TypeScriptGoJava
+const assetId = `asset${String(Date.now())}`;
+
+await contract.submitTransaction(
+    'CreateAsset',
+    assetId,
+    'yellow',
+    '5',
+    'Tom',
+    '1300',
+);
+Note
+
+In the application snippets above, it is important to note that the CreateAsset transaction is submitted with the same type and number of arguments the chaincode is expecting, and in the correct sequence. In this case the correctly sequenced arguments are:
+
+assetId, "yellow", "5", "Tom", "1300"
+The corresponding smart contract’s CreateAsset transaction function is expecting the following sequence of arguments that define the asset object:
+
+ID, Color, Size, Owner, AppraisedValue
+Update an asset¶
+The sample application submits a transaction to transfer ownership of the newly created asset. This time the transaction is invoked using submitAsync(), which returns after successfully submitting the endorsed transaction to the ordering service instead of waiting until the transaction is committed to the ledger. This allows the application to perform work using the transaction result while waiting for it to be committed.
+
+Sample application TransferAsset call:
+
+TypeScriptGoJava
+const commit = await contract.submitAsync('TransferAsset', {
+    arguments: [assetId, 'Saptha'],
+});
+const oldOwner = utf8Decoder.decode(commit.getResult());
+
+console.log(`*** Successfully submitted transaction to transfer ownership from ${oldOwner} to Saptha`);
+console.log('*** Waiting for transaction commit');
+
+const status = await commit.getStatus();
+if (!status.successful) {
+    throw new Error(`Transaction ${status.transactionId} failed to commit with status code ${String(status.code)}`);
+}
+
+console.log('*** Transaction committed successfully');
+Terminal output:
+
+*** Successfully submitted transaction to transfer ownership from Tom to Saptha
+*** Waiting for transaction commit
+*** Transaction committed successfully
+Query the updated asset¶
+The sample application then evaluates a query for the transferred asset, showing that it was both created with the properties described, and then subsequently transferred to a new owner.
+
+Sample application ReadAsset call:
+
+TypeScriptGoJava
+const resultBytes = await contract.evaluateTransaction('ReadAsset', assetId);
+
+const resultJson = utf8Decoder.decode(resultBytes);
+const result = JSON.parse(resultJson);
+console.log('*** Result:', result);
+Terminal output:
+
+*** Result: {
+    AppraisedValue: 1300,
+    Color: 'yellow',
+    ID: 'asset1639084597466',
+    Owner: 'Saptha',
+    Size: 5
+}
+Handle transaction errors¶
+The final part of the sequence demonstrates an error submitting a transaction. In this example, the application attempts to submit an UpdateAsset transaction but specifies an asset ID that does not exist. The transaction function returns an error response, and the submitTransaction() call fails.
+
+A submitTransaction() failure may generate several different types of error, indicating the point in the submit flow that the error occurred, and containing additional information to enable the application to respond appropriately. Consult the API documentation (Node.js, Go, Java) for details of the different error types that may be generated.
+
+Sample application failing UpdateAsset call:
+
+TypeScriptGoJava
+try {
+    await contract.submitTransaction(
+        'UpdateAsset',
+        'asset70',
+        'blue',
+        '5',
+        'Tomoko',
+        '300',
+    );
+    console.log('******** FAILED to return an error');
+} catch (error) {
+    console.log('*** Successfully caught the error: \n', error);
+}
+Terminal Output (with stack traces removed for clarity):
+
+TypeScriptGoJava
+*** Successfully caught the error:
+EndorseError: 10 ABORTED: failed to endorse transaction, see attached details for more info
+    at ... {
+  code: 10,
+  details: [
+    {
+      address: 'peer0.org1.example.com:7051',
+      message: 'chaincode response 500, the asset asset70 does not exist',
+      mspId: 'Org1MSP'
+    }
+  ],
+  cause: Error: 10 ABORTED: failed to endorse transaction, see attached details for more info
+      at ... {
+    code: 10,
+    details: 'failed to endorse transaction, see attached details for more info',
+    metadata: Metadata { internalRepr: [Map], options: {} }
+  },
+  transactionId: 'a92980d41eef1d6492d63acd5fbb6ef1db0f53252330ad28e548fedfdb9167fe'
+}
+The Endorse error type indicates that failure occurred during endorsement, and the gRPC status code of ABORTED indicates that the application successfully invoked the Fabric Gateway but that a failure occurred during the endorsement process. A gRPC status code of UNAVAILABLE or DEADLINE_EXCEEDED would suggest that the Fabric Gateway was not reachable or a timely response was not received so retrying the operation might be appropriate.
+
+Clean up¶
+When you are finished using the asset-transfer sample, you can bring down the test network using the network.sh script.
+
+./network.sh down
+This command will bring down the certificate authorities, peers, and ordering nodes of the blockchain network that we created. Note that all of the data on the ledger will be lost. If you want to go through the tutorial again, you will start from a clean initial state.
+
+Summary¶
+You have now seen how to set up a blockchain network by launching the test network and deploying a smart contract. You have then run a client application, and examined the application code to understand how it uses the Fabric Gateway client API to query and update the ledger by connecting to a Fabric Gateway and invoking transaction functions on the deployed smart contract.
+

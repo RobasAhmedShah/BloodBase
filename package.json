@@ -1,11 +1,11 @@
 {
-  "name": "custom-app",
+  "name": "bloodbase-api",
   "version": "1.0.0",
-  "description": "Custom Hyperledger Fabric application",
+  "description": "REST API for Bloodbase chaincode",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon app.js"
   },
   "keywords": ["hyperledger", "fabric", "blockchain"],
   "author": "",
@@ -15,7 +15,10 @@
     "@grpc/grpc-js": "^1.9.0",
     "@grpc/proto-loader": "^0.7.0",
     "fabric-ca-client": "^2.2.0",
-    "fabric-network": "^2.2.0"
-      
+    "fabric-network": "^2.2.0",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 } 

@@ -1,13 +1,20 @@
+const express = require('express');
 const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const fs = require('fs');
+
+const app = express();
+app.use(express.json());
 
 const channelName = 'mychannel';
 const chaincodeName = 'bloodbase';
 const mspOrg1 = 'Org1MSP';
 const walletPath = path.join(__dirname, 'wallet');
 const org1UserId = 'appUser';
+
+let contract;
+let gateway;
 
 // Helper function to get connection profile
 function buildCCPOrg1() {
@@ -78,9 +85,7 @@ async function registerAndEnrollUser() {
 
         const adminIdentity = await wallet.get('admin');
         if (!adminIdentity) {
-            console.log('An identity for the admin user "admin" does not exist in the wallet');
-            console.log('Run the enrollAdmin.js application before retrying');
-            return;
+            throw new Error('Admin identity not found');
         }
 
         const provider = wallet.getProviderRegistry().getProvider(adminIdentity.type);
@@ -106,83 +111,161 @@ async function registerAndEnrollUser() {
             type: 'X.509',
         };
         await wallet.put(org1UserId, x509Identity);
-        console.log(`Successfully registered and enrolled admin user ${org1UserId} and imported it into the wallet`);
+        console.log(`Successfully registered and enrolled user ${org1UserId}`);
     } catch (error) {
         console.error(`Failed to register user ${org1UserId}: ${error}`);
     }
 }
 
-// Main application logic
-async function main() {
+// Initialize Fabric connection
+async function initializeFabric() {
     try {
-        // Build connection profile and wallet
         const ccp = buildCCPOrg1();
         const wallet = await buildWallet(Wallets, walletPath);
 
-        // Check if user identity exists
         const identity = await wallet.get(org1UserId);
         if (!identity) {
-            console.log(`An identity for the user ${org1UserId} does not exist in the wallet`);
-            console.log('Run the registerUser.js application before retrying');
-            return;
+            throw new Error(`User ${org1UserId} not found in wallet`);
         }
 
-        // Create a new gateway for connecting to our peer node
-        const gateway = new Gateway();
-        await gateway.connect(ccp, { wallet, identity: org1UserId, discovery: { enabled: true, asLocalhost: true } });
+        gateway = new Gateway();
+        await gateway.connect(ccp, { 
+            wallet, 
+            identity: org1UserId, 
+            discovery: { enabled: true, asLocalhost: true }
+        });
 
-        // Get the network and contract
         const network = await gateway.getNetwork(channelName);
-        const contract = network.getContract(chaincodeName);
-
-        // Initialize ledger (only run once)
-        console.log('\n--> Submit Transaction: InitLedger');
-        await contract.submitTransaction('InitLedger');
-        console.log('*** Result: committed');
-
-        // Create a new donation
-        console.log('\n--> Submit Transaction: CreateDonation');
-        await contract.submitTransaction('CreateDonation', 'donation4', 'donor4', 'B+', '2025-05-14T12:00:00Z');
-        console.log('*** Result: committed');
-
-        // Read a donation
-        console.log('\n--> Evaluate Transaction: ReadDonation');
-        let result = await contract.evaluateTransaction('ReadDonation', 'donation4');
-        console.log(`*** Result: ${result.toString()}`);
-
-        // Update donation status
-        console.log('\n--> Submit Transaction: UpdateDonationStatus');
-        await contract.submitTransaction('UpdateDonationStatus', 'donation4', 'used');
-        console.log('*** Result: committed');
-
-        // Read the updated donation
-        console.log('\n--> Evaluate Transaction: ReadDonation');
-        result = await contract.evaluateTransaction('ReadDonation', 'donation4');
-        console.log(`*** Result: ${result.toString()}`);
-
-        // Get all donations
-        console.log('\n--> Evaluate Transaction: GetAllDonations');
-        result = await contract.evaluateTransaction('GetAllDonations');
-        console.log(`*** Result: ${result.toString()}`);
-
-        // Disconnect from the gateway
-        gateway.disconnect();
-
+        contract = network.getContract(chaincodeName);
+        
+        console.log('Fabric connection initialized successfully');
     } catch (error) {
-        console.error(`Failed to run application: ${error}`);
+        console.error(`Failed to initialize Fabric connection: ${error}`);
+        throw error;
     }
 }
 
-// Initialize the application
-async function initApplication() {
-    console.log('1. Enrolling admin...');
-    await enrollAdmin();
-    
-    console.log('2. Registering user...');
-    await registerAndEnrollUser();
-    
-    console.log('3. Running main application...');
-    await main();
+// API Routes
+
+// Initialize Ledger
+app.post('/api/init', async (req, res) => {
+    try {
+        await contract.submitTransaction('InitLedger');
+        res.json({ success: true, message: 'Ledger initialized successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Create Donation
+app.post('/api/donations', async (req, res) => {
+    try {
+        const { id, donorID, bloodType, timestamp } = req.body;
+        await contract.submitTransaction('CreateDonation', id, donorID, bloodType, timestamp);
+        res.json({ success: true, message: 'Donation created successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Read Donation
+app.get('/api/donations/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await contract.evaluateTransaction('ReadDonation', id);
+        res.json(JSON.parse(result.toString()));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update Donation Status
+app.put('/api/donations/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        await contract.submitTransaction('UpdateDonationStatus', id, status);
+        res.json({ success: true, message: 'Donation status updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Delete Donation
+app.delete('/api/donations/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        await contract.submitTransaction('DeleteDonation', id);
+        res.json({ success: true, message: 'Donation deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get All Donations
+app.get('/api/donations', async (req, res) => {
+    try {
+        const result = await contract.evaluateTransaction('GetAllDonations');
+        res.json(JSON.parse(result.toString()));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Check Donation Exists
+app.get('/api/donations/:id/exists', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await contract.evaluateTransaction('DonationExists', id);
+        res.json({ exists: result.toString() === 'true' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', message: 'Bloodbase API is running' });
+});
+
+// Start server
+async function startServer() {
+    try {
+        console.log('1. Enrolling admin...');
+        await enrollAdmin();
+        
+        console.log('2. Registering user...');
+        await registerAndEnrollUser();
+        
+        console.log('3. Initializing Fabric connection...');
+        await initializeFabric();
+        
+        const PORT = process.env.PORT || 3000;
+        app.listen(PORT, () => {
+            console.log(`Bloodbase API server running on port ${PORT}`);
+            console.log('\nAvailable endpoints:');
+            console.log('POST /api/init - Initialize ledger');
+            console.log('POST /api/donations - Create donation');
+            console.log('GET /api/donations/:id - Read donation');
+            console.log('PUT /api/donations/:id/status - Update donation status');
+            console.log('DELETE /api/donations/:id - Delete donation');
+            console.log('GET /api/donations - Get all donations');
+            console.log('GET /api/donations/:id/exists - Check if donation exists');
+            console.log('GET /health - Health check');
+        });
+    } catch (error) {
+        console.error('Failed to start server:', error);
+        process.exit(1);
+    }
 }
 
-initApplication(); 
+// Graceful shutdown
+process.on('SIGINT', async () => {
+    console.log('\nShutting down gracefully...');
+    if (gateway) {
+        gateway.disconnect();
+    }
+    process.exit(0);
+});
+
+startServer(); 

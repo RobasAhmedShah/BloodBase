@@ -21,6 +21,7 @@ const fabric_contract_api_1 = require("fabric-contract-api");
 const json_stringify_deterministic_1 = __importDefault(require("json-stringify-deterministic"));
 const sort_keys_recursive_1 = __importDefault(require("sort-keys-recursive"));
 let BloodBase = class BloodBase extends fabric_contract_api_1.Contract {
+    // Initialize the ledger with some donations
     async InitLedger(ctx) {
         const donations = [
             {
@@ -29,6 +30,7 @@ let BloodBase = class BloodBase extends fabric_contract_api_1.Contract {
                 bloodType: 'O+',
                 timestamp: '2025-01-01T12:00:00Z',
                 status: 'available',
+                docType: 'donation'
             },
             {
                 ID: 'donation2',
@@ -36,71 +38,85 @@ let BloodBase = class BloodBase extends fabric_contract_api_1.Contract {
                 bloodType: 'A+',
                 timestamp: '2025-01-02T12:00:00Z',
                 status: 'available',
-            },
+                docType: 'donation'
+            }
         ];
         for (const donation of donations) {
-            donation.docType = 'donation';
-            // example of how to write to world state deterministically
-            // use convetion of alphabetic order
-            // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
-            // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
+            // Use ID as the key, like in the reference code
             await ctx.stub.putState(donation.ID, Buffer.from((0, json_stringify_deterministic_1.default)((0, sort_keys_recursive_1.default)(donation))));
             console.info(`Donation ${donation.ID} initialized`);
         }
     }
     // CreateDonation issues a new donation to the world state with given details.
     async CreateDonation(ctx, id, donorID, bloodType, timestamp) {
+        console.info(`Creating donation ${id} with donor ${donorID}`);
+        // Check if the donation already exists
         const exists = await this.DonationExists(ctx, id);
         if (exists) {
             throw new Error(`The donation ${id} already exists`);
         }
+        // Create donation object
         const donation = {
             ID: id,
-            donorID: donorID,
-            bloodType: bloodType,
-            timestamp: timestamp,
+            donorID,
+            bloodType,
+            timestamp,
             status: 'available',
+            docType: 'donation'
         };
-        // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+        // Store using ID as key, directly mirroring the reference implementation
         await ctx.stub.putState(id, Buffer.from((0, json_stringify_deterministic_1.default)((0, sort_keys_recursive_1.default)(donation))));
+        console.info(`Donation ${id} has been created`);
     }
     // ReadDonation returns the donation stored in the world state with given id.
     async ReadDonation(ctx, id) {
-        const donationJSON = await ctx.stub.getState(id); // get the donation from chaincode state
-        if (donationJSON.length === 0) {
+        console.info(`Reading donation ${id}`);
+        const donationJSON = await ctx.stub.getState(id);
+        if (!donationJSON || donationJSON.length === 0) {
             throw new Error(`The donation ${id} does not exist`);
         }
+        console.info(`Donation ${id} found`);
         return donationJSON.toString();
     }
     // UpdateDonationStatus updates the status of an existing donation in the world state.
     async UpdateDonationStatus(ctx, id, newStatus) {
+        console.info(`Updating donation ${id} status to ${newStatus}`);
+        // Check if donation exists
         const exists = await this.DonationExists(ctx, id);
         if (!exists) {
             throw new Error(`The donation ${id} does not exist`);
         }
+        // Get current state
         const donationString = await this.ReadDonation(ctx, id);
         const donation = JSON.parse(donationString);
+        // Update status
         donation.status = newStatus;
-        // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+        // Save updated donation
         await ctx.stub.putState(id, Buffer.from((0, json_stringify_deterministic_1.default)((0, sort_keys_recursive_1.default)(donation))));
+        console.info(`Donation ${id} status updated to ${newStatus}`);
     }
     // DeleteDonation deletes a given donation from the world state.
     async DeleteDonation(ctx, id) {
+        console.info(`Deleting donation ${id}`);
+        // Check if donation exists
         const exists = await this.DonationExists(ctx, id);
         if (!exists) {
             throw new Error(`The donation ${id} does not exist`);
         }
-        return ctx.stub.deleteState(id);
+        // Delete state directly by ID
+        await ctx.stub.deleteState(id);
+        console.info(`Donation ${id} has been deleted`);
     }
     // DonationExists returns true when donation with given ID exists in world state.
     async DonationExists(ctx, id) {
         const donationJSON = await ctx.stub.getState(id);
-        return donationJSON.length > 0;
+        return donationJSON && donationJSON.length > 0;
     }
     // GetAllDonations returns all donations found in the world state.
     async GetAllDonations(ctx) {
+        console.info('Getting all donations');
         const allResults = [];
-        // range query with empty string for startKey and endKey does an open-ended query of all donations in the chaincode namespace.
+        // Use standard range query like in the reference code
         const iterator = await ctx.stub.getStateByRange('', '');
         let result = await iterator.next();
         while (!result.done) {
@@ -108,14 +124,19 @@ let BloodBase = class BloodBase extends fabric_contract_api_1.Contract {
             let record;
             try {
                 record = JSON.parse(strValue);
+                // Only include donation objects
+                if (record.docType === 'donation') {
+                    allResults.push(record);
+                }
             }
             catch (err) {
-                console.log(err);
-                record = strValue;
+                console.error(`Error parsing: ${err}`);
             }
-            allResults.push(record);
             result = await iterator.next();
         }
+        // Close the iterator
+        await iterator.close();
+        console.info(`Found ${allResults.length} donations`);
         return JSON.stringify(allResults);
     }
 };

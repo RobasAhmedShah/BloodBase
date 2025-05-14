@@ -223,6 +223,54 @@ app.get('/api/donations/:id/exists', async (req, res) => {
     }
 });
 
+// Blood Transfer Routes
+
+// Initiate Blood Transfer
+app.post('/api/transfers', async (req, res) => {
+    try {
+        const transferData = JSON.stringify(req.body);
+        const result = await contract.submitTransaction('InitiateBloodTransfer', transferData);
+        res.json({ success: true, message: 'Blood transfer initiated successfully', transferID: result.toString() });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get Blood Transfer
+app.get('/api/transfers/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await contract.evaluateTransaction('GetBloodTransfer', id);
+        res.json(JSON.parse(result.toString()));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update Blood Transfer Status
+app.put('/api/transfers/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status, actualArrival, temperature } = req.body;
+        await contract.submitTransaction('UpdateBloodTransferStatus', id, status, actualArrival || '', temperature || '');
+        res.json({ success: true, message: `Blood transfer status updated to ${status}` });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get Blood Transfers by Blood Bank
+app.get('/api/bloodbanks/:id/transfers', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.query;
+        const result = await contract.evaluateTransaction('GetBloodTransfersByBloodBank', id, status || '');
+        res.json(JSON.parse(result.toString()));
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'Bloodbase API is running' });
@@ -251,6 +299,10 @@ async function startServer() {
             console.log('DELETE /api/donations/:id - Delete donation');
             console.log('GET /api/donations - Get all donations');
             console.log('GET /api/donations/:id/exists - Check if donation exists');
+            console.log('POST /api/transfers - Initiate blood transfer');
+            console.log('GET /api/transfers/:id - Get blood transfer details');
+            console.log('PUT /api/transfers/:id/status - Update blood transfer status');
+            console.log('GET /api/bloodbanks/:id/transfers - Get blood transfers by blood bank');
             console.log('GET /health - Health check');
         });
     } catch (error) {

@@ -1,74 +1,80 @@
 #!/bin/bash
 
-# Set path to the test-network directory
-cd /mnt/d/bloodbase/fabric-samples/test-network
+# Exit on first error
+set -e
 
-# Build the chaincode first
-echo "Building chaincode..."
-cd ../../bloodbase/chaincode-typescript
-npm install
-npm run build
-cd ../../fabric-samples/test-network
+# Print the commands being run
+set -x
 
-# Get the next sequence number by checking committed chaincode
-echo "Checking current sequence number..."
-CURRENT_SEQUENCE=$(peer lifecycle chaincode querycommitted --channelID mychannel --name bloodbase --output json 2>/dev/null | jq -r '.sequence // 0')
-NEXT_SEQUENCE=$((CURRENT_SEQUENCE + 1))
-echo "Using sequence number: $NEXT_SEQUENCE"
+# Environment setup
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=$PWD/../config/
+export CORE_PEER_TLS_ENABLED=true
+
+# Set environment variables for Org1
+setOrg1Env() {
+  export CORE_PEER_LOCALMSPID="Org1MSP"
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
+  export CORE_PEER_ADDRESS=localhost:7051
+}
+
+# Set environment variables for Org2
+setOrg2Env() {
+  export CORE_PEER_LOCALMSPID="Org2MSP"
+  export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
+  export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
+  export CORE_PEER_ADDRESS=localhost:9051
+}
+
+# Navigate to the test-network directory
+cd ../fabric-samples/test-network
 
 # Package the chaincode
 echo "Packaging chaincode..."
-peer lifecycle chaincode package bloodbase.tar.gz --path ../../bloodbase/chaincode-typescript/ --lang node --label bloodbase_1.0
+peer lifecycle chaincode package bloodbase.tar.gz --path ../../bloodbase/chaincode-typescript --lang node --label bloodbase_1.0
 
-# Set environment variables
-export CORE_PEER_TLS_ENABLED=true
-
-# Install on Org1
+# Install the chaincode on Org1
 echo "Installing chaincode on Org1..."
-export CORE_PEER_LOCALMSPID="Org1MSP"
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-export CORE_PEER_ADDRESS=localhost:7051
-
+setOrg1Env
 peer lifecycle chaincode install bloodbase.tar.gz
 
-# Install on Org2
+# Install the chaincode on Org2
 echo "Installing chaincode on Org2..."
-export CORE_PEER_LOCALMSPID="Org2MSP"
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp 
-export CORE_PEER_ADDRESS=localhost:9051
-
+setOrg2Env
 peer lifecycle chaincode install bloodbase.tar.gz
 
 # Get the package ID
 echo "Getting package ID..."
-CC_PACKAGE_ID=$(peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[] | select(.label=="bloodbase_1.0") | .package_id' | head -1)
-echo "Package ID: $CC_PACKAGE_ID"
+setOrg1Env
+PACKAGE_ID=$(peer lifecycle chaincode queryinstalled | grep bloodbase_1.0 | awk '{print $3}' | sed 's/,$//')
+echo "Package ID: $PACKAGE_ID"
 
-# Approve for Org2
-echo "Approving chaincode for Org2..."
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name bloodbase --version 1.0 --package-id $CC_PACKAGE_ID --sequence $NEXT_SEQUENCE --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
-
-# Switch back to Org1
+# Approve the chaincode for Org1
 echo "Approving chaincode for Org1..."
-export CORE_PEER_LOCALMSPID="Org1MSP"
-export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt
-export CORE_PEER_ADDRESS=localhost:7051
+setOrg1Env
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name bloodbase --version 1.0 --package-id $PACKAGE_ID --sequence 1 --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name bloodbase --version 1.0 --package-id $CC_PACKAGE_ID --sequence $NEXT_SEQUENCE --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem"
+# Approve the chaincode for Org2
+echo "Approving chaincode for Org2..."
+setOrg2Env
+peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name bloodbase --version 1.0 --package-id $PACKAGE_ID --sequence 1 --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+# Check commit readiness
+echo "Checking commit readiness..."
+peer lifecycle chaincode checkcommitreadiness --channelID mychannel --name bloodbase --version 1.0 --sequence 1 --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --output json
 
 # Commit the chaincode definition
 echo "Committing chaincode definition..."
-peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name bloodbase --version 1.0 --sequence $NEXT_SEQUENCE --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
+peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID mychannel --name bloodbase --version 1.0 --sequence 1 --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
 
-echo "Chaincode deployment completed successfully!"
+# Query committed
+echo "Querying committed chaincode..."
+peer lifecycle chaincode querycommitted --channelID mychannel --name bloodbase 
 
-# Verify the deployment
-echo "Verifying deployment..."
-peer lifecycle chaincode querycommitted --channelID mychannel --name bloodbase
+# Initialize the ledger
+echo "Initializing the ledger..."
+setOrg1Env
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n bloodbase --peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
 
-# Test the chaincode
-echo "Testing chaincode..."
-peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile "${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem" -C mychannel -n bloodbase --peerAddresses localhost:7051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt" --peerAddresses localhost:9051 --tlsRootCertFiles "${PWD}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt" -c '{"function":"CreateDonation","Args":["donation3","12345","A+","2025-05-14T06:44:00Z"]}' 
+echo "Deployment completed successfully!" 

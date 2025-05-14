@@ -5,18 +5,19 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "fabric-chaincode-node server --chaincode-address=localhost:9999 --chaincode-id=bloodbase:1.0 --grpc.max_send_message_length=100000000 --grpc.max_receive_message_length=100000000",
+    "start": "set -x && fabric-chaincode-node start",
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "prepare": "npm run build"
   },
   "dependencies": {
-    "fabric-contract-api": "^2.2.0",
-    "fabric-shim": "^2.2.0",
+    "fabric-contract-api": "~2.5",
+    "fabric-shim": "~2.5",
+    "json-stringify-deterministic": "^1.0.0",
+    "sort-keys-recursive": "^2.1.0",
     "reflect-metadata": "^0.1.13",
-    "typescript": "^5.0.4",
-    "uuid": "^9.0.0",
-    "@types/uuid": "^9.0.8"
+    "@tsconfig/node18": "^1.0.0",
+    "typescript": "~5.4.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",

@@ -1,12 +1,11 @@
-import 'reflect-metadata';
 import { Context, Contract } from 'fabric-contract-api';
 export declare class BloodBase extends Contract {
-    private readonly USER_PREFIX;
-    private readonly DONATION_PREFIX;
-    RegisterUser(ctx: Context, userID: string, bloodType: string, ipfsCID: string): Promise<void>;
-    RecordDonation(ctx: Context, donorID: string, tokenID: string): Promise<void>;
-    ReadUser(ctx: Context, userID: string): Promise<string>;
-    ReadDonation(ctx: Context, donorID: string, tokenID: string): Promise<string>;
-    GetDonorHistory(ctx: Context, donorID: string): Promise<string>;
-    UpdateDonationStatus(ctx: Context, donorID: string, tokenID: string, newStatus: string): Promise<void>;
+    InitLedger(ctx: Context): Promise<void>;
+    CreateDonation(ctx: Context, id: string, donorID: string, bloodType: string, timestamp: string): Promise<void>;
+    ReadDonation(ctx: Context, id: string): Promise<string>;
+    UpdateDonationStatus(ctx: Context, id: string, newStatus: string): Promise<void>;
+    DeleteDonation(ctx: Context, id: string): Promise<void>;
+    DonationExists(ctx: Context, id: string): Promise<boolean>;
+    GetAllDonations(ctx: Context): Promise<string>;
 }
+//# sourceMappingURL=bloodbase.d.ts.map

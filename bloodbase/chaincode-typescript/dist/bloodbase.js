@@ -8,158 +8,163 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BloodBase = void 0;
-require("reflect-metadata");
+/*
+ * SPDX-License-Identifier: Apache-2.0
+ */
+// Deterministic JSON.stringify()
 const fabric_contract_api_1 = require("fabric-contract-api");
+const json_stringify_deterministic_1 = __importDefault(require("json-stringify-deterministic"));
+const sort_keys_recursive_1 = __importDefault(require("sort-keys-recursive"));
 let BloodBase = class BloodBase extends fabric_contract_api_1.Contract {
-    constructor() {
-        super(...arguments);
-        this.USER_PREFIX = 'USER:';
-        this.DONATION_PREFIX = 'DONATION:';
-    }
-    async RegisterUser(ctx, userID, bloodType, ipfsCID) {
-        // Check if user already exists
-        const userKey = this.USER_PREFIX + userID;
-        const existingUser = await ctx.stub.getState(userKey);
-        if (existingUser && existingUser.length > 0) {
-            throw new Error(`User ${userID} already exists`);
+    async InitLedger(ctx) {
+        const donations = [
+            {
+                ID: 'donation1',
+                donorID: 'donor1',
+                bloodType: 'O+',
+                timestamp: '2025-01-01T12:00:00Z',
+                status: 'available',
+            },
+            {
+                ID: 'donation2',
+                donorID: 'donor2',
+                bloodType: 'A+',
+                timestamp: '2025-01-02T12:00:00Z',
+                status: 'available',
+            },
+        ];
+        for (const donation of donations) {
+            donation.docType = 'donation';
+            // example of how to write to world state deterministically
+            // use convetion of alphabetic order
+            // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+            // when retrieving data, in any lang, the order of data will be the same and consequently also the corresonding hash
+            await ctx.stub.putState(donation.ID, Buffer.from((0, json_stringify_deterministic_1.default)((0, sort_keys_recursive_1.default)(donation))));
+            console.info(`Donation ${donation.ID} initialized`);
         }
-        // Create new user
-        const user = {
-            userID,
-            bloodType,
-            ipfsCID,
-            timestamp: new Date().toISOString(),
-            isActive: true
-        };
-        // Store user data
-        await ctx.stub.putState(userKey, Buffer.from(JSON.stringify(user)));
-        // Emit event
-        ctx.stub.setEvent('UserRegistered', Buffer.from(JSON.stringify({
-            userID,
-            timestamp: user.timestamp
-        })));
     }
-    async RecordDonation(ctx, donorID, tokenID) {
-        // Verify donor exists
-        const userKey = this.USER_PREFIX + donorID;
-        const userBytes = await ctx.stub.getState(userKey);
-        if (!userBytes || userBytes.length === 0) {
-            throw new Error(`Donor ${donorID} does not exist`);
+    // CreateDonation issues a new donation to the world state with given details.
+    async CreateDonation(ctx, id, donorID, bloodType, timestamp) {
+        const exists = await this.DonationExists(ctx, id);
+        if (exists) {
+            throw new Error(`The donation ${id} already exists`);
         }
-        // Calculate expiry date (35 days from now)
-        const timestamp = new Date();
-        const expiryDate = new Date(timestamp);
-        expiryDate.setDate(expiryDate.getDate() + 35);
-        // Create donation record
         const donation = {
-            donorID,
-            tokenID,
-            timestamp: timestamp.toISOString(),
-            status: 'COLLECTED',
-            expiryDate: expiryDate.toISOString()
+            ID: id,
+            donorID: donorID,
+            bloodType: bloodType,
+            timestamp: timestamp,
+            status: 'available',
         };
-        // Store donation data using composite key
-        const donationKey = this.DONATION_PREFIX + donorID + ':' + tokenID;
-        await ctx.stub.putState(donationKey, Buffer.from(JSON.stringify(donation)));
-        // Emit event
-        ctx.stub.setEvent('DonationRecorded', Buffer.from(JSON.stringify({
-            donorID,
-            tokenID,
-            timestamp: donation.timestamp
-        })));
+        // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+        await ctx.stub.putState(id, Buffer.from((0, json_stringify_deterministic_1.default)((0, sort_keys_recursive_1.default)(donation))));
     }
-    async ReadUser(ctx, userID) {
-        const userKey = this.USER_PREFIX + userID;
-        const userBytes = await ctx.stub.getState(userKey);
-        if (!userBytes || userBytes.length === 0) {
-            throw new Error(`User ${userID} does not exist`);
+    // ReadDonation returns the donation stored in the world state with given id.
+    async ReadDonation(ctx, id) {
+        const donationJSON = await ctx.stub.getState(id); // get the donation from chaincode state
+        if (donationJSON.length === 0) {
+            throw new Error(`The donation ${id} does not exist`);
         }
-        return userBytes.toString();
+        return donationJSON.toString();
     }
-    async ReadDonation(ctx, donorID, tokenID) {
-        const donationKey = this.DONATION_PREFIX + donorID + ':' + tokenID;
-        const donationBytes = await ctx.stub.getState(donationKey);
-        if (!donationBytes || donationBytes.length === 0) {
-            throw new Error(`Donation record not found for donor ${donorID} and token ${tokenID}`);
+    // UpdateDonationStatus updates the status of an existing donation in the world state.
+    async UpdateDonationStatus(ctx, id, newStatus) {
+        const exists = await this.DonationExists(ctx, id);
+        if (!exists) {
+            throw new Error(`The donation ${id} does not exist`);
         }
-        return donationBytes.toString();
-    }
-    async GetDonorHistory(ctx, donorID) {
-        const iterator = await ctx.stub.getStateByPartialCompositeKey(this.DONATION_PREFIX, [donorID]);
-        const donations = [];
-        while (true) {
-            const result = await iterator.next();
-            if (result.value) {
-                const donation = JSON.parse(result.value.value.toString());
-                donations.push(donation);
-            }
-            if (result.done) {
-                await iterator.close();
-                break;
-            }
-        }
-        return JSON.stringify(donations);
-    }
-    async UpdateDonationStatus(ctx, donorID, tokenID, newStatus) {
-        const donationKey = this.DONATION_PREFIX + donorID + ':' + tokenID;
-        const donationBytes = await ctx.stub.getState(donationKey);
-        if (!donationBytes || donationBytes.length === 0) {
-            throw new Error(`Donation record not found for donor ${donorID} and token ${tokenID}`);
-        }
-        const donation = JSON.parse(donationBytes.toString());
+        const donationString = await this.ReadDonation(ctx, id);
+        const donation = JSON.parse(donationString);
         donation.status = newStatus;
-        await ctx.stub.putState(donationKey, Buffer.from(JSON.stringify(donation)));
-        // Emit event
-        ctx.stub.setEvent('DonationStatusUpdated', Buffer.from(JSON.stringify({
-            donorID,
-            tokenID,
-            newStatus,
-            timestamp: new Date().toISOString()
-        })));
+        // we insert data in alphabetic order using 'json-stringify-deterministic' and 'sort-keys-recursive'
+        await ctx.stub.putState(id, Buffer.from((0, json_stringify_deterministic_1.default)((0, sort_keys_recursive_1.default)(donation))));
+    }
+    // DeleteDonation deletes a given donation from the world state.
+    async DeleteDonation(ctx, id) {
+        const exists = await this.DonationExists(ctx, id);
+        if (!exists) {
+            throw new Error(`The donation ${id} does not exist`);
+        }
+        return ctx.stub.deleteState(id);
+    }
+    // DonationExists returns true when donation with given ID exists in world state.
+    async DonationExists(ctx, id) {
+        const donationJSON = await ctx.stub.getState(id);
+        return donationJSON.length > 0;
+    }
+    // GetAllDonations returns all donations found in the world state.
+    async GetAllDonations(ctx) {
+        const allResults = [];
+        // range query with empty string for startKey and endKey does an open-ended query of all donations in the chaincode namespace.
+        const iterator = await ctx.stub.getStateByRange('', '');
+        let result = await iterator.next();
+        while (!result.done) {
+            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+            let record;
+            try {
+                record = JSON.parse(strValue);
+            }
+            catch (err) {
+                console.log(err);
+                record = strValue;
+            }
+            allResults.push(record);
+            result = await iterator.next();
+        }
+        return JSON.stringify(allResults);
     }
 };
 exports.BloodBase = BloodBase;
 __decorate([
     (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String]),
+    __metadata("design:paramtypes", [fabric_contract_api_1.Context]),
     __metadata("design:returntype", Promise)
-], BloodBase.prototype, "RegisterUser", null);
+], BloodBase.prototype, "InitLedger", null);
 __decorate([
     (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String]),
+    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String, String]),
     __metadata("design:returntype", Promise)
-], BloodBase.prototype, "RecordDonation", null);
+], BloodBase.prototype, "CreateDonation", null);
 __decorate([
     (0, fabric_contract_api_1.Transaction)(false),
-    (0, fabric_contract_api_1.Returns)('string'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
-    __metadata("design:returntype", Promise)
-], BloodBase.prototype, "ReadUser", null);
-__decorate([
-    (0, fabric_contract_api_1.Transaction)(false),
-    (0, fabric_contract_api_1.Returns)('string'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String]),
     __metadata("design:returntype", Promise)
 ], BloodBase.prototype, "ReadDonation", null);
 __decorate([
-    (0, fabric_contract_api_1.Transaction)(false),
-    (0, fabric_contract_api_1.Returns)('string'),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
+    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String]),
     __metadata("design:returntype", Promise)
-], BloodBase.prototype, "GetDonorHistory", null);
+], BloodBase.prototype, "UpdateDonationStatus", null);
 __decorate([
     (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String]),
+    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
-], BloodBase.prototype, "UpdateDonationStatus", null);
+], BloodBase.prototype, "DeleteDonation", null);
+__decorate([
+    (0, fabric_contract_api_1.Transaction)(false),
+    (0, fabric_contract_api_1.Returns)('boolean'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
+    __metadata("design:returntype", Promise)
+], BloodBase.prototype, "DonationExists", null);
+__decorate([
+    (0, fabric_contract_api_1.Transaction)(false),
+    (0, fabric_contract_api_1.Returns)('string'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [fabric_contract_api_1.Context]),
+    __metadata("design:returntype", Promise)
+], BloodBase.prototype, "GetAllDonations", null);
 exports.BloodBase = BloodBase = __decorate([
     (0, fabric_contract_api_1.Info)({ title: 'BloodBase', description: 'Smart contract for blood donation management' })
 ], BloodBase);
+//# sourceMappingURL=bloodbase.js.map

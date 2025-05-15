@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BloodBase Blockchain - Direct Peer Commands</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    h1 {
+      color: #b00020;
+      text-align: center;
+      margin-top: 0;
+    }
+    .terminal {
+      background-color: #2d2d2d;
+      color: #f0f0f0;
+      border-radius: 4px;
+      padding: 15px;
+      font-family: 'Courier New', Courier, monospace;
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 15px;
+      white-space: pre-wrap;
+    }
+    .operation-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .operation-group {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+    }
+    .operation-title {
+      margin-top: 0;
+      color: #0066cc;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #004c99;
+    }
+    .custom-command {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+    .tab {
+      padding: 10px 15px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-bottom: none;
+      margin-right: 5px;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab.active {
+      background-color: white;
+      border-color: #ddd;
+      border-bottom-color: white;
+      margin-bottom: -1px;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .env-reminder {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      border-left: 5px solid #ffeeba;
+    }
+    .note {
+      font-size: 0.9em;
+      font-style: italic;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BloodBase Blockchain - Direct Peer Commands</h1>
+    
+    <div class="env-reminder">
+      <strong>Important:</strong> Before using any of the tabs below, please set up your environment in the <strong>Fabric Commands</strong> tab first. 
+      This will ensure all peer commands use the correct paths and settings.
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" data-tab="fabric">Fabric Commands</div>
+      <div class="tab" data-tab="donations">Donations</div>
+      <div class="tab" data-tab="donors">Donors</div>
+      <div class="tab" data-tab="patients">Patients</div>
+      <div class="tab" data-tab="appointments">Appointments</div>
+      <div class="tab" data-tab="custom">Custom Command</div>
+    </div>
+    
+    <div class="terminal" id="output">Welcome to BloodBase Blockchain Operations
+Type your commands or use the operation buttons below.
+All operations now use direct peer commands to interact with the blockchain.
+Please set up your environment in the Fabric Commands tab first.
+    </div>
+    
+    <!-- Donations Tab -->
+    <div class="tab-content" id="donations-tab">
+      <div class="operation-group">
+        <h3 class="operation-title">Create Donation</h3>
+        <p class="note">This will execute a peer chaincode invoke command to create a donation directly on the blockchain.</p>
+        <div class="form-group">
+          <label for="donation-id">Donation ID:</label>
+          <input type="text" id="donation-id" placeholder="e.g., DON001">
+        </div>
+        <div class="form-group">
+          <label for="donor-id">Donor ID:</label>
+          <input type="text" id="donor-id" placeholder="e.g., DONOR001">
+        </div>
+        <div class="form-group">
+          <label for="blood-type">Blood Type:</label>
+          <select id="blood-type">
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="donation-timestamp">Timestamp:</label>
+          <input type="text" id="donation-timestamp" value="" placeholder="e.g., 2023-05-20T10:30:00Z">
+        </div>
+        <button onclick="createDonation()">Create Donation</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Read Donation</h3>
+        <p class="note">This will execute a peer chaincode query command to read a donation directly from the blockchain.</p>
+        <div class="form-group">
+          <label for="read-donation-id">Donation ID:</label>
+          <input type="text" id="read-donation-id" placeholder="e.g., DON001">
+        </div>
+        <button onclick="readDonation()">Read Donation</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Get All Donations</h3>
+        <p class="note">This will execute a peer chaincode query command to get all donations directly from the blockchain.</p>
+        <button onclick="getAllDonations()">Get All Donations</button>
+      </div>
+    </div>
+    
+    <!-- Donors Tab -->
+    <div class="tab-content" id="donors-tab">
+      <div class="operation-group">
+        <h3 class="operation-title">Create Donor</h3>
+        <p class="note">This will execute a peer chaincode invoke command to create a donor directly on the blockchain.</p>
+        <div class="form-group">
+          <label for="new-donor-id">Donor ID:</label>
+          <input type="text" id="new-donor-id" placeholder="e.g., DONOR001">
+        </div>
+        <div class="form-group">
+          <label for="donor-name">Name:</label>
+          <input type="text" id="donor-name" placeholder="e.g., John Doe">
+        </div>
+        <div class="form-group">
+          <label for="donor-blood-type">Blood Type:</label>
+          <select id="donor-blood-type">
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="donor-contact">Contact:</label>
+          <input type="text" id="donor-contact" placeholder="e.g., +1234567890">
+        </div>
+        <button onclick="createDonor()">Create Donor</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Get All Donors</h3>
+        <p class="note">This will execute a peer chaincode query command to get all donors directly from the blockchain.</p>
+        <button onclick="getAllDonors()">Get All Donors</button>
+      </div>
+    </div>
+    
+    <!-- Patients Tab -->
+    <div class="tab-content" id="patients-tab">
+      <div class="operation-group">
+        <h3 class="operation-title">Create Patient</h3>
+        <p class="note">This will execute a peer chaincode invoke command to create a patient directly on the blockchain.</p>
+        <div class="form-group">
+          <label for="patient-id">Patient ID:</label>
+          <input type="text" id="patient-id" placeholder="e.g., PAT001">
+        </div>
+        <div class="form-group">
+          <label for="patient-name">Name:</label>
+          <input type="text" id="patient-name" placeholder="e.g., Jane Doe">
+        </div>
+        <div class="form-group">
+          <label for="patient-blood-type">Blood Type:</label>
+          <select id="patient-blood-type">
+            <option value="A+">A+</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B-">B-</option>
+            <option value="AB+">AB+</option>
+            <option value="AB-">AB-</option>
+            <option value="O+">O+</option>
+            <option value="O-">O-</option>
+          </select>
+        </div>
+        <button onclick="createPatient()">Create Patient</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Get All Patients</h3>
+        <p class="note">This will execute a peer chaincode query command to get all patients directly from the blockchain.</p>
+        <button onclick="getAllPatients()">Get All Patients</button>
+      </div>
+    </div>
+    
+    <!-- Appointments Tab -->
+    <div class="tab-content" id="appointments-tab">
+      <div class="operation-group">
+        <h3 class="operation-title">Create Appointment</h3>
+        <p class="note">This will execute a peer chaincode invoke command to create an appointment directly on the blockchain.</p>
+        <div class="form-group">
+          <label for="appointment-id">Appointment ID:</label>
+          <input type="text" id="appointment-id" placeholder="e.g., APT001">
+        </div>
+        <div class="form-group">
+          <label for="appointment-date">Date:</label>
+          <input type="text" id="appointment-date" placeholder="e.g., 2023-05-25T14:00:00Z">
+        </div>
+        <div class="form-group">
+          <label for="appointment-user-id">User ID:</label>
+          <input type="text" id="appointment-user-id" placeholder="e.g., DONOR001">
+        </div>
+        <div class="form-group">
+          <label for="appointment-user-type">User Type:</label>
+          <select id="appointment-user-type">
+            <option value="donor">Donor</option>
+            <option value="patient">Patient</option>
+          </select>
+        </div>
+        <button onclick="createAppointment()">Create Appointment</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Get All Appointments</h3>
+        <p class="note">This will execute a peer chaincode query command to get all appointments directly from the blockchain.</p>
+        <button onclick="getAllAppointments()">Get All Appointments</button>
+      </div>
+    </div>
+    
+    <!-- Fabric Commands Tab -->
+    <div class="tab-content active" id="fabric-tab">
+      <div class="operation-group">
+        <h3 class="operation-title">Environment Setup</h3>
+        <div class="form-group">
+          <label for="fabric-network-path">Fabric Network Path:</label>
+          <input type="text" id="fabric-network-path" value="/mnt/d/bloodbase/fabric-samples/test-network" placeholder="e.g., /mnt/d/bloodbase/fabric-samples/test-network">
+        </div>
+        <div class="form-group">
+          <label for="channel-name">Channel Name:</label>
+          <input type="text" id="channel-name" value="mychannel" placeholder="e.g., mychannel">
+        </div>
+        <div class="form-group">
+          <label for="chaincode-name">Chaincode Name:</label>
+          <input type="text" id="chaincode-name" value="bloodbase" placeholder="e.g., bloodbase">
+        </div>
+        <div class="form-group">
+          <label for="org-number">Organization:</label>
+          <select id="org-number">
+            <option value="1">Org1</option>
+            <option value="2">Org2</option>
+          </select>
+        </div>
+        <button onclick="setFabricEnvironment()">Set Environment</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Network Management</h3>
+        <button onclick="startNetwork()">Start Network</button>
+        <button onclick="stopNetwork()">Stop Network</button>
+        <button onclick="networkStatus()">Network Status</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Channel Operations</h3>
+        <button onclick="createChannel()">Create Channel</button>
+        <button onclick="joinChannel()">Join Channel</button>
+        <button onclick="listChannels()">List Channels</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Chaincode Lifecycle</h3>
+        <div class="form-group">
+          <label for="chaincode-version">Chaincode Version:</label>
+          <input type="text" id="chaincode-version" value="1.0" placeholder="e.g., 1.0">
+        </div>
+        <div class="form-group">
+          <label for="chaincode-path">Chaincode Path:</label>
+          <input type="text" id="chaincode-path" value="../bloodbase/chaincode-typescript" placeholder="e.g., ../bloodbase/chaincode-typescript">
+        </div>
+        <button onclick="packageChaincode()">Package Chaincode</button>
+        <button onclick="installChaincode()">Install Chaincode</button>
+        <button onclick="approveChaincode()">Approve Chaincode</button>
+        <button onclick="commitChaincode()">Commit Chaincode</button>
+        <button onclick="queryInstalledChaincode()">Query Installed</button>
+        <button onclick="queryCommittedChaincode()">Query Committed</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Chaincode Invocation</h3>
+        <div class="form-group">
+          <label for="invoke-function">Function Name:</label>
+          <input type="text" id="invoke-function" placeholder="e.g., InitLedger">
+        </div>
+        <div class="form-group">
+          <label for="invoke-args">Arguments (comma-separated):</label>
+          <input type="text" id="invoke-args" placeholder="e.g., arg1,arg2,arg3">
+        </div>
+        <div class="form-group">
+          <label for="invoke-type">Operation Type:</label>
+          <select id="invoke-type">
+            <option value="invoke">Invoke (Submit)</option>
+            <option value="query">Query (Evaluate)</option>
+          </select>
+        </div>
+        <button onclick="invokeChaincode()">Execute</button>
+      </div>
+    </div>
+    
+    <!-- Custom Command Tab -->
+    <div class="tab-content" id="custom-tab">
+      <div class="operation-group">
+        <h3 class="operation-title">Execute Custom Command</h3>
+        <div class="form-group">
+          <label for="custom-command">Command:</label>
+          <textarea id="custom-command" rows="4" placeholder="Enter your WSL command here..."></textarea>
+        </div>
+        <button onclick="executeCustomCommand()">Execute Command</button>
+      </div>
+      
+      <div class="operation-group">
+        <h3 class="operation-title">Blockchain Command Templates</h3>
+        <select id="command-template" onchange="loadTemplate()">
+          <option value="">Select a template...</option>
+          <option value="peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile /mnt/d/bloodbase/fabric-samples/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n bloodbase --peerAddresses localhost:7051 --tlsRootCertFiles /mnt/d/bloodbase/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles /mnt/d/bloodbase/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{\"Args\":[\"InitLedger\"]}'">Initialize Ledger</option>
+          <option value="peer chaincode query -C mychannel -n bloodbase -c '{\"Args\":[\"GetAllDonations\"]}'">Query All Donations</option>
+          <option value="peer chaincode query -C mychannel -n bloodbase -c '{\"Args\":[\"ReadDonation\",\"DON001\"]}'">Query Donation by ID</option>
+          <option value="peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile /mnt/d/bloodbase/fabric-samples/test-network/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n bloodbase --peerAddresses localhost:7051 --tlsRootCertFiles /mnt/d/bloodbase/fabric-samples/test-network/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles /mnt/d/bloodbase/fabric-samples/test-network/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{\"Args\":[\"CreateDonation\",\"DON001\",\"DONOR001\",\"A+\",\"2023-05-20T10:30:00Z\"]}'">Create Donation</option>
+          <option value="peer chaincode query -C mychannel -n bloodbase -c '{\"Args\":[\"GetAllDonors\"]}'">Query All Donors</option>
+          <option value="peer chaincode query -C mychannel -n bloodbase -c '{\"Args\":[\"GetAllPatients\"]}'">Query All Patients</option>
+          <option value="peer chaincode query -C mychannel -n bloodbase -c '{\"Args\":[\"GetAllAppointments\"]}'">Query All Appointments</option>
+          <option value="peer lifecycle chaincode queryinstalled">Query Installed Chaincodes</option>
+          <option value="peer channel list">List Channels</option>
+          <option value="peer chaincode list --installed">List Installed Chaincodes</option>
+          <option value="peer chaincode list --instantiated -C mychannel">List Instantiated Chaincodes</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set current timestamp for donation form
+    document.getElementById('donation-timestamp').value = new Date().toISOString();
+    
+    // Tab switching functionality
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs and contents
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        tab.classList.add('active');
+        const tabId = tab.getAttribute('data-tab');
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+      });
+    });
+
+    // Terminal output handling
+    const terminal = document.getElementById('output');
+    
+    function appendToTerminal(text, isError = false) {
+      const span = document.createElement('span');
+      span.style.color = isError ? '#ff6b6b' : '#a0e86c';
+      span.textContent = text + '\n';
+      terminal.appendChild(span);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+    
+    // Execute command through the API
+    async function executeCommand(command) {
+      appendToTerminal('$ ' + command);
+      
+      try {
+        const response = await fetch('http://localhost:3001/execute', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ command })
+        });
+        
+        const data = await response.json();
+        
+        if (data.error) {
+          appendToTerminal('Error: ' + data.error, true);
+        } else if (data.output) {
+          appendToTerminal(data.output);
+        }
+      } catch (error) {
+        appendToTerminal('Error: ' + error.message, true);
+      }
+    }
+    
+    // Load command template
+    function loadTemplate() {
+      const template = document.getElementById('command-template').value;
+      if (template) {
+        document.getElementById('custom-command').value = template;
+      }
+    }
+    
+    // Execute custom command
+    function executeCustomCommand() {
+      const command = document.getElementById('custom-command').value;
+      if (command) {
+        executeCommand(command);
+      } else {
+        appendToTerminal('Error: No command specified', true);
+      }
+    }
+    
+    // Donation operations
+    function createDonation() {
+      const id = document.getElementById('donation-id').value;
+      const donorId = document.getElementById('donor-id').value;
+      const bloodType = document.getElementById('blood-type').value;
+      const timestamp = document.getElementById('donation-timestamp').value;
+      
+      if (!id || !donorId || !bloodType || !timestamp) {
+        appendToTerminal('Error: All fields are required for donation creation', true);
+        return;
+      }
+      
+      const command = `${getEnvSetupCommand()} && peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C ${channelName} -n ${chaincodeName} --peerAddresses localhost:7051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":["CreateDonation","${id}","${donorId}","${bloodType}","${timestamp}"]}'`;
+      executeCommand(command);
+    }
+    
+    function readDonation() {
+      const id = document.getElementById('read-donation-id').value;
+      if (!id) {
+        appendToTerminal('Error: Donation ID is required', true);
+        return;
+      }
+      
+      const command = `${getEnvSetupCommand()} && peer chaincode query -C ${channelName} -n ${chaincodeName} -c '{"Args":["ReadDonation","${id}"]}'`;
+      executeCommand(command);
+    }
+    
+    function getAllDonations() {
+      const command = `${getEnvSetupCommand()} && peer chaincode query -C ${channelName} -n ${chaincodeName} -c '{"Args":["GetAllDonations"]}'`;
+      executeCommand(command);
+    }
+    
+    // Donor operations
+    function createDonor() {
+      const id = document.getElementById('new-donor-id').value;
+      const name = document.getElementById('donor-name').value;
+      const bloodType = document.getElementById('donor-blood-type').value;
+      const contact = document.getElementById('donor-contact').value;
+      
+      if (!id || !name || !bloodType) {
+        appendToTerminal('Error: ID, name, and blood type are required for donor creation', true);
+        return;
+      }
+      
+      const command = `${getEnvSetupCommand()} && peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C ${channelName} -n ${chaincodeName} --peerAddresses localhost:7051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":["CreateDonor","${id}","${name}","${bloodType}","${contact || ""}"]}'`;
+      executeCommand(command);
+    }
+    
+    function getAllDonors() {
+      const command = `${getEnvSetupCommand()} && peer chaincode query -C ${channelName} -n ${chaincodeName} -c '{"Args":["GetAllDonors"]}'`;
+      executeCommand(command);
+    }
+    
+    // Patient operations
+    function createPatient() {
+      const id = document.getElementById('patient-id').value;
+      const name = document.getElementById('patient-name').value;
+      const bloodType = document.getElementById('patient-blood-type').value;
+      
+      if (!id || !name || !bloodType) {
+        appendToTerminal('Error: ID, name, and blood type are required for patient creation', true);
+        return;
+      }
+      
+      const command = `${getEnvSetupCommand()} && peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C ${channelName} -n ${chaincodeName} --peerAddresses localhost:7051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":["CreatePatient","${id}","${name}","${bloodType}"]}'`;
+      executeCommand(command);
+    }
+    
+    function getAllPatients() {
+      const command = `${getEnvSetupCommand()} && peer chaincode query -C ${channelName} -n ${chaincodeName} -c '{"Args":["GetAllPatients"]}'`;
+      executeCommand(command);
+    }
+    
+    // Appointment operations
+    function createAppointment() {
+      const id = document.getElementById('appointment-id').value;
+      const date = document.getElementById('appointment-date').value;
+      const userId = document.getElementById('appointment-user-id').value;
+      const userType = document.getElementById('appointment-user-type').value;
+      
+      if (!id || !date || !userId || !userType) {
+        appendToTerminal('Error: All fields are required for appointment creation', true);
+        return;
+      }
+      
+      const command = `${getEnvSetupCommand()} && peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C ${channelName} -n ${chaincodeName} --peerAddresses localhost:7051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":["CreateAppointment","${id}","${date}","${userId}","${userType}"]}'`;
+      executeCommand(command);
+    }
+    
+    function getAllAppointments() {
+      const command = `${getEnvSetupCommand()} && peer chaincode query -C ${channelName} -n ${chaincodeName} -c '{"Args":["GetAllAppointments"]}'`;
+      executeCommand(command);
+    }
+    
+    // Fabric environment variables
+    let fabricNetworkPath = '/mnt/d/bloodbase/fabric-samples/test-network';
+    let channelName = 'mychannel';
+    let chaincodeName = 'bloodbase';
+    let orgNumber = '1';
+    let chaincodeVersion = '1.0';
+    let chaincodePath = '../bloodbase/chaincode-typescript';
+    
+    // Set Fabric environment variables
+    function setFabricEnvironment() {
+      fabricNetworkPath = document.getElementById('fabric-network-path').value;
+      channelName = document.getElementById('channel-name').value;
+      chaincodeName = document.getElementById('chaincode-name').value;
+      orgNumber = document.getElementById('org-number').value;
+      chaincodeVersion = document.getElementById('chaincode-version').value;
+      chaincodePath = document.getElementById('chaincode-path').value;
+      
+      appendToTerminal(`Fabric environment set:
+- Network Path: ${fabricNetworkPath}
+- Channel: ${channelName}
+- Chaincode: ${chaincodeName}
+- Organization: Org${orgNumber}
+- Version: ${chaincodeVersion}
+- Path: ${chaincodePath}`);
+    }
+    
+    // Helper function to create environment setup commands
+    function getEnvSetupCommand() {
+      return `cd ${fabricNetworkPath} && export PATH=${fabricNetworkPath}/../bin:$PATH && export FABRIC_CFG_PATH=${fabricNetworkPath}/../config/ && export CORE_PEER_TLS_ENABLED=true && export CORE_PEER_LOCALMSPID=Org${orgNumber}MSP && export CORE_PEER_TLS_ROOTCERT_FILE=${fabricNetworkPath}/organizations/peerOrganizations/org${orgNumber}.example.com/peers/peer0.org${orgNumber}.example.com/tls/ca.crt && export CORE_PEER_MSPCONFIGPATH=${fabricNetworkPath}/organizations/peerOrganizations/org${orgNumber}.example.com/users/Admin@org${orgNumber}.example.com/msp && export CORE_PEER_ADDRESS=localhost:${orgNumber === '1' ? '7051' : '9051'}`;
+    }
+    
+    // Network Management Functions
+    function startNetwork() {
+      const command = `cd ${fabricNetworkPath} && ./network.sh up createChannel -c ${channelName}`;
+      executeCommand(command);
+    }
+    
+    function stopNetwork() {
+      const command = `cd ${fabricNetworkPath} && ./network.sh down`;
+      executeCommand(command);
+    }
+    
+    function networkStatus() {
+      const command = `docker ps --format "{{.Names}}: {{.Status}}" | grep "peer\|orderer"`;
+      executeCommand(command);
+    }
+    
+    // Channel Operations
+    function createChannel() {
+      const command = `cd ${fabricNetworkPath} && ./network.sh createChannel -c ${channelName}`;
+      executeCommand(command);
+    }
+    
+    function joinChannel() {
+      const command = `${getEnvSetupCommand()} && peer channel join -b ${fabricNetworkPath}/channel-artifacts/${channelName}.block`;
+      executeCommand(command);
+    }
+    
+    function listChannels() {
+      const command = `${getEnvSetupCommand()} && peer channel list`;
+      executeCommand(command);
+    }
+    
+    // Chaincode Lifecycle Functions
+    function packageChaincode() {
+      const packageName = `${chaincodeName}_${chaincodeVersion}.tar.gz`;
+      const command = `${getEnvSetupCommand()} && peer lifecycle chaincode package ${packageName} --path ${chaincodePath} --lang node --label ${chaincodeName}_${chaincodeVersion}`;
+      executeCommand(command);
+    }
+    
+    function installChaincode() {
+      const packageName = `${chaincodeName}_${chaincodeVersion}.tar.gz`;
+      const command = `${getEnvSetupCommand()} && peer lifecycle chaincode install ${packageName}`;
+      executeCommand(command);
+    }
+    
+    function queryInstalledChaincode() {
+      const command = `${getEnvSetupCommand()} && peer lifecycle chaincode queryinstalled`;
+      executeCommand(command);
+    }
+    
+    function approveChaincode() {
+      // This command assumes you've already queried and know the package ID
+      // In a real scenario, you would need to extract the package ID from queryinstalled output
+      const command = `${getEnvSetupCommand()} && peer lifecycle chaincode queryinstalled --output json | jq -r '.installed_chaincodes[] | select(.label=="${chaincodeName}_${chaincodeVersion}") | .package_id' | xargs -I{} peer lifecycle chaincode approveformyorg -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID ${channelName} --name ${chaincodeName} --version ${chaincodeVersion} --package-id {} --sequence 1 --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem`;
+      executeCommand(command);
+    }
+    
+    function commitChaincode() {
+      const command = `${getEnvSetupCommand()} && peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --channelID ${channelName} --name ${chaincodeName} --version ${chaincodeVersion} --sequence 1 --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --peerAddresses localhost:7051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt`;
+      executeCommand(command);
+    }
+    
+    function queryCommittedChaincode() {
+      const command = `${getEnvSetupCommand()} && peer lifecycle chaincode querycommitted --channelID ${channelName} --name ${chaincodeName}`;
+      executeCommand(command);
+    }
+    
+    // Chaincode Invocation
+    function invokeChaincode() {
+      const fcn = document.getElementById('invoke-function').value;
+      const argsInput = document.getElementById('invoke-args').value;
+      const invokeType = document.getElementById('invoke-type').value;
+      
+      if (!fcn) {
+        appendToTerminal('Error: Function name is required', true);
+        return;
+      }
+      
+      // Parse arguments
+      const args = argsInput ? argsInput.split(',') : [];
+      
+      let command;
+      if (invokeType === 'query') {
+        command = `${getEnvSetupCommand()} && peer chaincode query -C ${channelName} -n ${chaincodeName} -c '{"Args":["${fcn}"${args.length > 0 ? ',"' + args.join('","') + '"' : ''}]}'`;
+      } else {
+        command = `${getEnvSetupCommand()} && peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${fabricNetworkPath}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C ${channelName} -n ${chaincodeName} --peerAddresses localhost:7051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses localhost:9051 --tlsRootCertFiles ${fabricNetworkPath}/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":["${fcn}"${args.length > 0 ? ',"' + args.join('","') + '"' : ''}]}'`;
+      }
+      
+      executeCommand(command);
+    }
+  </script>
+</body>
+</html> 

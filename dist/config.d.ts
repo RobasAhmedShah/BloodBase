@@ -1,0 +1,17 @@
+export declare const channelName: string;
+export declare const chaincodeName: string;
+export declare const mspId: string;
+export declare const userId: string;
+export declare const walletPath: string;
+export declare const connectionProfilePath: string;
+export declare const asLocalhost: boolean;
+export declare const port: string | number;
+export declare const host: string;
+export declare const logLevel: string;
+export declare const apiPrefix = "/api";
+export declare const apiVersion = "/v1";
+export declare const baseApiPath: string;
+export declare const queryTimeout: number;
+export declare const endorseTimeout: number;
+export declare const submitTimeout: number;
+export declare const commitTimeout: number;

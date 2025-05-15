@@ -7,5 +7,35 @@ export declare class BloodBase extends Contract {
     DeleteDonation(ctx: Context, id: string): Promise<void>;
     DonationExists(ctx: Context, id: string): Promise<boolean>;
     GetAllDonations(ctx: Context): Promise<string>;
+    CreateDonor(ctx: Context, id: string, name: string, cnic: string, bloodType: string, phone: string, email: string, address: string, dateOfBirth: string, registrationDate: string): Promise<void>;
+    ReadDonor(ctx: Context, id: string): Promise<string>;
+    UpdateDonor(ctx: Context, id: string, name: string, cnic: string, bloodType: string, phone: string, email: string, address: string, dateOfBirth: string, medicalHistory: string): Promise<void>;
+    UpdateDonorEligibility(ctx: Context, id: string, eligibilityStatus: string): Promise<void>;
+    UpdateDonorLastDonation(ctx: Context, id: string, donationDate: string): Promise<void>;
+    DeleteDonor(ctx: Context, id: string): Promise<void>;
+    DonorExists(ctx: Context, id: string): Promise<boolean>;
+    GetAllDonors(ctx: Context): Promise<string>;
+    GetDonationsByDonor(ctx: Context, donorID: string): Promise<string>;
+    GetEligibleDonors(ctx: Context): Promise<string>;
+    CreateAppointment(ctx: Context, id: string, userID: string, userType: string, bloodBankID: string, appointmentDate: string, appointmentTime: string, purpose: string, notes: string): Promise<void>;
+    ReadAppointment(ctx: Context, id: string): Promise<string>;
+    UpdateAppointmentStatus(ctx: Context, id: string, newStatus: string): Promise<void>;
+    RescheduleAppointment(ctx: Context, id: string, newDate: string, newTime: string): Promise<void>;
+    DeleteAppointment(ctx: Context, id: string): Promise<void>;
+    AppointmentExists(ctx: Context, id: string): Promise<boolean>;
+    GetAllAppointments(ctx: Context): Promise<string>;
+    GetAppointmentsByUser(ctx: Context, userID: string, userType: string): Promise<string>;
+    GetAppointmentsByDate(ctx: Context, date: string): Promise<string>;
+    GetAppointmentsByStatus(ctx: Context, status: string): Promise<string>;
+    CreatePatient(ctx: Context, id: string, name: string, cnic: string, bloodType: string, phone: string, email: string, address: string, dateOfBirth: string, medicalHistory: string, doctorPrescription: string, registrationDate: string): Promise<void>;
+    ReadPatient(ctx: Context, id: string): Promise<string>;
+    UpdatePatient(ctx: Context, id: string, name: string, cnic: string, bloodType: string, phone: string, email: string, address: string, dateOfBirth: string, medicalHistory: string, doctorPrescription: string): Promise<void>;
+    UpdatePatientEligibility(ctx: Context, id: string, eligibilityStatus: string): Promise<void>;
+    UpdatePatientTransfusion(ctx: Context, id: string, donationID: string): Promise<void>;
+    DeletePatient(ctx: Context, id: string): Promise<void>;
+    PatientExists(ctx: Context, id: string): Promise<boolean>;
+    GetAllPatients(ctx: Context): Promise<string>;
+    GetPatientsByBloodType(ctx: Context, bloodType: string): Promise<string>;
+    GetCompatibleBloodDonations(ctx: Context, patientID: string): Promise<string>;
 }
 //# sourceMappingURL=bloodbase.d.ts.map
